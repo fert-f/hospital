@@ -1,5 +1,12 @@
 package com.epam.rd.izh.entity;
 
+import lombok.Builder;
+import lombok.Data;
+
+import javax.validation.constraints.Min;
+import javax.validation.constraints.Size;
+import java.util.Date;
+
 /**
  * Сущность пользователя, содержит данные(credentials), необходимые для авторизации в Spring Web приложении; Может
  * быть использована как часть бизнес логики приложеняи, например сотрудник больницы, где role определяет его
@@ -10,10 +17,19 @@ package com.epam.rd.izh.entity;
  * наличие совпадений с уже существующими.
  */
 
+@Data
+@Builder
 public class AuthorizedUser {
-
+  private long id;
+  @Min(4)
   private String login;
   private String password;
+  @Size(min=2, max=16)
+  private String name;
+  @Size(min=2, max=16)
+  private String surname;
+  private Date birthday;
+
 
   /**
    * Определяет GrantedAuthority пользователя. Может быть колелкцией, например Set<Strings> если логика приложения

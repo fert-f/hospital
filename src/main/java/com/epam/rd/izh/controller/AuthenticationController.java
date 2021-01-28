@@ -1,6 +1,7 @@
 package com.epam.rd.izh.controller;
 
-import com.epam.rd.izh.entity.AuthorizedUser;
+import com.epam.rd.izh.dto.RegisteredUserDto;
+import com.epam.rd.izh.entity.MyUser;
 import com.epam.rd.izh.repository.UserRepository;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,10 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
@@ -61,7 +59,7 @@ public class AuthenticationController {
   @GetMapping("/registration")
   public String viewRegistration(Model model) {
     if(!model.containsAttribute("registrationForm")){
-      model.addAttribute("registrationForm", new AuthorizedUser());
+      model.addAttribute("registrationForm", new RegisteredUserDto());
     }
     return "registration";
   }
@@ -70,7 +68,7 @@ public class AuthenticationController {
    * Метод, отвечающий за подтверждение регистрации пользователя и сохранение данных в репозиторий или DAO.
    */
   @PostMapping("/registration/proceed")
-  public String processRegistration(@Valid @ModelAttribute("registrationForm") AuthorizedUser registeredUser,
+  public String processRegistration(@Valid @ModelAttribute("registrationForm") RegisteredUserDto registeredUser,
       BindingResult bindingResult, RedirectAttributes redirectAttributes) {
 
     /**
@@ -78,13 +76,13 @@ public class AuthenticationController {
      * Для этого необходимо написать реализацию Validator.
      */
     //registeredUser.validate(registeredUserDto, bindingResult);
-
-    if (bindingResult.hasErrors()) {
-      //логика отображения ошибки, не является обязательной
-      //...
-      //...
-      return "redirect:/registration";
-    }
+//
+//    if (bindingResult.hasErrors()) {
+//      //логика отображения ошибки, не является обязательной
+//      //...
+//      //...
+//      return "redirect:/registration";
+//    }
     /**
      * Здесь происходит присвоение роли пользователю и шифрование пароля.
      * Роль может быть так же определена пользователем на этапе регистрации, либо иным способов, зависящим
@@ -92,18 +90,30 @@ public class AuthenticationController {
      * registeredUser может быть DTO объектом, преобразуемым в AuthorizedUser сущность в сервисе-маппере
      * (эот сервис нужно написать самим), вместе с присвоением роли и шифрованием пароля.
      */
-    registeredUser.setRole("User");
+    registeredUser.setRole("PATIENT");
     registeredUser.setPassword(passwordEncoder.encode(registeredUser.getPassword()));
 
     /**
      * Добавление пользователя в репозиторий или в базу данных через CRUD операции DAO.
      * Рекомендуется вынести эту логику на сервисный слой.
      */
-    userRepository.addAuthorizedUser(registeredUser);
-    /**
-     * В случае успешной регистрации редирект можно настроить на другой энд пойнт.
-     */
-    return "redirect:/login";
+    if (userRepository.registerUser(registeredUser)) {
+
+      /**
+       * В случае успешной регистрации редирект можно настроить на другой энд пойнт.
+       */
+      return "redirect:/login";
+    }
+    return "redirect:/registration";
   }
 
+  @PostMapping("/login/test")
+  @ResponseBody
+  public String loginExist (@RequestParam String login) {
+    MyUser user = userRepository.getUserByLogin(login);
+    if (user != null){
+      return user.getLogin();
+    }
+    return  null;
+  }
 }

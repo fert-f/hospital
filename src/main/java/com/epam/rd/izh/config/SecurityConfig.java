@@ -33,6 +33,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
          */
         .authorizeRequests()
         .antMatchers("/login").anonymous()
+        .antMatchers("/login/test").permitAll()
         .antMatchers("/registration").permitAll()
         .antMatchers("/registration/**").permitAll()
 
@@ -47,7 +48,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .antMatchers("/js/**").permitAll()
         .antMatchers("/images/**").permitAll()
         .antMatchers("/fonts/**").permitAll()
-
+            /**
+             * Доступ для ролей
+              */
+        .antMatchers("/admin/**").hasAuthority("ADMIN")
+        .antMatchers("/patient/**").hasAuthority("PATIENT")
+        .antMatchers("/doctor/**").hasAuthority("DOCTOR")
         /**
          * Любой реквест, кроме перечисленных выше, доступен лишь авторизованному пользователю.
          * Неавторизованный пользователь будет переброшен на "/login".

@@ -8,7 +8,7 @@
   </head>
 
   <body>
-    <form action="login/process" method="post">
+    <form action="login/process" method="post" modelAttribute="loginForm">
       <p title="Login form">Sign up</p>
       <div class="group">
         <label for="">Login</label>
