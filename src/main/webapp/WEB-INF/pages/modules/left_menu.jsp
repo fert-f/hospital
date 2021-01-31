@@ -19,24 +19,34 @@
                 <a href="/admin/visitRecords"><p>Просмотр архива записей врачей</p></a>
              </td>
         </tr>
+        <tr>
+             <td class = "left-menu-bar">
+                <a href="/admin/reviews"><p>Просмотр отзывов о врачах</p></a>
+             </td>
+        </tr>
     </sec:authorize>
 
     <sec:authorize access="hasAuthority('PATIENT')">
         <tr>
              <td class = "left-menu-bar">
-                <a href="#"><p>Записатся на прием</p></a>
+                <a href="/patient/doctors"><p>Записатся на прием</p></a>
              </td>
         </tr>
         <tr>
              <td class = "left-menu-bar">
-                <a href="#"><p>Список запланированных посешений</p></a>
+                <a href="/patient/visits"><p>Список запланированных посешений</p></a>
+             </td>
+        </tr>
+        <tr>
+             <td class = "left-menu-bar">
+                <a href="/patient/reviews"><p>Оставить отзыв о враче</p></a>
              </td>
         </tr>
     </sec:authorize>
     <sec:authorize access="hasAuthority('DOCTOR')">
         <tr>
              <td class = "left-menu-bar">
-                <a href="#"><p>Приемы сегодня</p></a>
+                <a href="/doctor/today"><p>Приемы сегодня</p></a>
              </td>
         </tr>
         <tr>

@@ -22,19 +22,20 @@
         </div>
         <div class = "content-warp">
             <div class = "content">
+                <div class="error">${updateDoctorError}</div>
                 <c:forEach items="${doctors}" var="doctor">
                     <div class = "doctor-frame">
-                        <div class = "doctor-name"><h3>${doctor.name} ${doctor.surname}</h3></div>
-                        <div class = "doctor-spec"><p>Специальность: ${doctor.specialty}<br/>
-                        ${doctor.experience}</p></div>
-                        <div class= "doctor-info"><p>${doctor.specification}</p></div>
+                        <div class = "doctor-name" ><h3 id = "doctorName${doctor.id}">${doctor.name} ${doctor.surname}</h3></div>
+                        <div class = "doctor-spec"><p class = "doctorSmallInfo left">Специальность:</p><p class = "doctorSmallInfo" id = "specialty${doctor.id}"> ${doctor.specialty}</p>
+                        <p class = "doctorSmallInfo" id = "experience${doctor.id}">${doctor.experience}</p></div>
+                        <div class= "doctor-info clear"><p id = "specification${doctor.id}">${doctor.specification}</p></div>
                         <div class = "doctor-act">
                             <sec:authorize access="hasAuthority('ADMIN')">
-                                <div class = "doctor-button"><a href="//admin/doctorTimeWork"><p>Расписание работы</p></a></div>
-                                <div class = "doctor-button"><a href="#" onclick="editDoctor('${doctor.id}', '${doctor.name} ${doctor.surname}', '${doctor.specialty}', '${doctor.specification}', '${doctor.experience}')"><p>Редактировать информацию</p></a></div>
+                                <div class = "doctor-button"><a href="/admin/doctorTimeWork/${doctor.id}"><p>Расписание работы</p></a></div>
+                                <div class = "doctor-button"><a href="#" onclick="editDoctor('${doctor.id}')"><p>Редактировать информацию</p></a></div>
                             </sec:authorize>
                             <sec:authorize access="hasAuthority('PATIENT')">
-                                <div class = "doctor-button"><a href="#"><p>Запись на прием</p></a></div>
+                                <div class = "doctor-button"><a href="/patient/doctor/${doctor.id}"><p>Запись на прием</p></a></div>
                             </sec:authorize>
                         </div>
                         <hr>
@@ -43,8 +44,9 @@
             </div>
         </div>
     </div>
+    <sec:authorize access="hasAuthority('ADMIN')">
     <div id="dark-background">
-        <a id = "close" onclick="hideAll()">
+        <a id = "close" onclick="">
         <div class = "dark-background-form-holder" id = "dark-background-form-holder">
             <form:form action="/admin/updateDoctor" method="post" modelAttribute="editDoctorForm">
                 <p title="Edit form">
@@ -78,6 +80,7 @@
         </div>
         </a>
     </div>
+    </sec:authorize>
     <jsp:include page="modules/footer.jsp" />
   </body>
 </html>

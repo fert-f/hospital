@@ -3,11 +3,12 @@ package com.epam.rd.izh.dto;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 @Data
 public class DoctorDetailsDto {
-    @NotBlank
-    long id;
+    @NotNull
+    private long id;
     private String specialty;
     private String specification;
     private String experience;

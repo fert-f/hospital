@@ -1,0 +1,54 @@
+.day-frame{
+    width: 60%;
+    float: left;
+}
+
+.doctor-frame hr{
+    clear: both;
+}
+
+.doctor-name{
+    width: 100%;
+}
+
+.doctor-spec{
+    width: 100%;
+}
+
+.doctor-spec p{
+    font-size: 0.8em;
+    margin-block-end: 0em;
+    margin-bottom: 2px;
+    color: #696969;
+}
+
+.doctor-info{
+    width: 100%;
+}
+
+.doctor-info p{
+    font-size: 0.9em;
+    margin-block-end: 0em;
+    margin-bottom: 3px;
+    color: #696969;
+}
+
+.unRecButton {
+    float: left;
+    height: 38px;
+    width: 130px;
+    margin-bottom: 2px;
+    margin-right: 8px;
+    display: inline-block;
+    vertical-align: middle;
+    padding: 0;
+    text-align: center;
+    align :center;
+    color: black;
+    background-color: #C0C0C0;
+    border-radius: 10px;
+    margin-top: 15px;
+}
+.unRecButton p{
+    margin-top: 10px;
+}

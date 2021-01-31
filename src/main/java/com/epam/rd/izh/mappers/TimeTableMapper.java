@@ -20,7 +20,7 @@ public class TimeTableMapper implements RowMapper<TimeTableDto> {
                 .doctor_id(resultSet.getLong("doctor_id"))
                 .patient_id(resultSet.getLong("patient_id"))
                 .record(resultSet.getString("record"))
-                .visit(resultSet.getBoolean("visit"))
+                .visit(resultSet.getObject("visit", Boolean.class))
                 .build();
     }
 }

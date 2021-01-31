@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="/css/doctors.css">
     <script src="/js/jquery-3.5.1.min.js"></script>
     <script src="/js/doctorTimeWork.js"></script>
-    <title>Doctor Time Set</title>
+    <title>Doctor record archive</title>
   </head>
 
   <body>
@@ -24,15 +24,18 @@
             <div class = "content">
                 <div class="error">${updateDoctorError}</div>
                 <div>
-                    <h3>Расписание для ${doctor.name} ${doctor.surname}</h3>
-                    <form:form modelAttribute="dayForm">
+                    <form:form modelAttribute="docForm">
+                        <h3>
+                            Просмотр архива
+                        </h3>
                         <div>
-                            Выбирете дату
+                            <form:select path="doctorId" name="doctorId" onchange="">
+                                <form:option value="0" disabled="true" selected="true" label="Выберете врача" />
+                                 <c:forEach items="${doctorsLists}" var="doctor">
+                                    <form:option value = "${doctor.id}" label="${doctor.name} ${doctor.surname}" />
+                                </c:forEach>
+                            </form:select>
                         </div>
-                        <div>
-                            <form:input path="date_app" title="date_app" type="date" min="${tomorrow}" id = "date_app" onchange="getDateWorkTime('${doctorId}')"/>
-                        </div>
-
                     </form:form>
                 </div>
                 <div id="result"></div>
@@ -43,6 +46,3 @@
     <jsp:include page="modules/footer.jsp" />
   </body>
 </html>
-
-
-

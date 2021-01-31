@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 
 @Component
 public class MyUserMapper implements RowMapper<MyUser> {
@@ -16,7 +17,7 @@ public class MyUserMapper implements RowMapper<MyUser> {
                 .login(resultSet.getString("login"))
                 .name(resultSet.getString("user_name"))
                 .surname(resultSet.getString("user_surname"))
-                .birthday(resultSet.getDate("user_birthday"))
+                .birthday(LocalDate.parse(resultSet.getString("user_birthday")))
                 .role(resultSet.getString("role"))
                 .build();
     }

@@ -9,12 +9,28 @@ $(document).on('click', function(e) {
     e.stopPropagation();
 });
 
+
+function startRecord(id) {
+    $.ajax({
+        type: 'POST',
+        url:"/doctor/patientCome/",
+        data: {recId:id},
+        success: function (data) {
+             editRecord(id);
+        ;},
+        error: function() {
+            alert("error");
+        }
+    });
+
+}
+
 function hideAll() {
     $("#dark-background").hide();
     $("#dark-background-form-holder").hide();
 }
 
-function editDoctor (id) {
+function editRecord (id) {
     $("#dark-background").show();
     document.getElementById("doctorName").innerHTML = document.getElementById("doctorName"+id).innerHTML;
     document.getElementById("id").setAttribute('value', id);

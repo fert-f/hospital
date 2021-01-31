@@ -5,6 +5,7 @@ import lombok.Data;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
+import java.time.LocalDate;
 import java.util.Date;
 
 @Data
@@ -17,6 +18,6 @@ public class MyUser {
     private String name;
     @Size(min=2, max=16)
     private String surname;
-    private Date birthday;
+    private LocalDate birthday;
     private String role;
 }

@@ -5,16 +5,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.Size;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Date;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TimeTableDto {
+public class AppointmentDto{
     private long rec_id;
     private LocalDate date_app;
     private LocalTime time_app;
@@ -22,5 +20,12 @@ public class TimeTableDto {
     private long patient_id;
     private String record;
     private Boolean visit;
-
+    private String doctorName;
+    private String doctorSurname;
+    private String specialty;
+    private String specification;
+    private String experience;
+    private String patientName;
+    private String patientSurname;
+    private int patientAge;
 }
