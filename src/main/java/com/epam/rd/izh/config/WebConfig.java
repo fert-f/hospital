@@ -1,11 +1,22 @@
 package com.epam.rd.izh.config;
 
+import com.epam.rd.izh.interceptors.UserNameInterceptor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
-public class WebConfig {
-    /**
-     * Данный класс можно использовать для создание бинов приложения, например бин ObjectMapper для десериализации.
-     * Этот класс не является обязательным, но является стандартным там, где используется настройка бинов.
-     */
+public class WebConfig implements WebMvcConfigurer {
+    @Autowired
+    UserNameInterceptor userNameInterceptor;
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(userNameInterceptor)
+                .addPathPatterns("/admin/**")
+                .addPathPatterns("/doctor/**")
+                .addPathPatterns("/patient/**");
+    }
+
 }
