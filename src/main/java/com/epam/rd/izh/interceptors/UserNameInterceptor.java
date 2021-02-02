@@ -19,6 +19,7 @@ public class UserNameInterceptor implements HandlerInterceptor {
 
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         MyUser headerUser = userRepository.getUserByLogin(authentication.getName());
         if (modelAndView != null) {
