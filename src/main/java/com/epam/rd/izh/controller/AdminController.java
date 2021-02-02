@@ -2,7 +2,6 @@ package com.epam.rd.izh.controller;
 
 import com.epam.rd.izh.dto.DoctorDetailsDto;
 import com.epam.rd.izh.dto.RegisteredDoctorDto;
-import com.epam.rd.izh.dto.ReviewDto;
 import com.epam.rd.izh.dto.TimeTableDto;
 import com.epam.rd.izh.entity.FormsData;
 import com.epam.rd.izh.service.AdminService;
@@ -74,7 +73,6 @@ public class AdminController {
     private String getTimeTableForDate(@RequestParam String date, @PathVariable long doctorId, Model model) {
         model.addAttribute("doctorId", doctorId);
         model.addAttribute("dateForQuery", date);
-        //      model.addAttribute("dateTimeTableForDoctor", adminService.getDateTimeTableForDoctorToDate(doctorId, date));
         model.addAttribute("dayTimeTableForm", new FormsData());
         model.addAttribute("firstChange", adminService.isChangeDoctorWork(doctorId, date, 1));
         model.addAttribute("secondChange", adminService.isChangeDoctorWork(doctorId, date, 2));
@@ -153,8 +151,8 @@ public class AdminController {
     }
 
     @PostMapping("/admin/getDayHistory")
-    public String getDayHistory (@RequestParam long doctorId, @RequestParam String date, Model model) {
-        model.addAttribute("todayMap", adminService.getDoctorDayAppointments(doctorId,date));
+    public String getDayHistory(@RequestParam long doctorId, @RequestParam String date, Model model) {
+        model.addAttribute("todayMap", adminService.getDoctorDayAppointments(doctorId, date));
         return "/modules/oneDay";
     }
 }

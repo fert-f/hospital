@@ -3,7 +3,6 @@ package com.epam.rd.izh.repository;
 import com.epam.rd.izh.dto.TextContentDto;
 import com.epam.rd.izh.mappers.TextContentMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.relational.core.sql.SQL;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;

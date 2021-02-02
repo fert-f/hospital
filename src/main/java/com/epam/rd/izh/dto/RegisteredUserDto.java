@@ -11,9 +11,9 @@ import javax.validation.constraints.Size;
 public class RegisteredUserDto {
     @Min(4)
     private String login;
-    @Size(min=2, max=16)
+    @Size(min = 2, max = 16)
     private String name;
-    @Size(min=2, max=16)
+    @Size(min = 2, max = 16)
     private String surname;
     @NotBlank
     private String birthday;

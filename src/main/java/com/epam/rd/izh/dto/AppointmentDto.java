@@ -12,7 +12,7 @@ import java.time.LocalTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AppointmentDto{
+public class AppointmentDto {
     private long rec_id;
     private LocalDate date_app;
     private LocalTime time_app;

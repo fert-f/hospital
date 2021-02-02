@@ -21,7 +21,7 @@ public class ReviewRepository {
         return jdbcTemplate.update("INSERT INTO `reviews` (`rw_patient_id`, `rw_doctor_id`, `rec_id`, `review`) VALUES ( ?, ?, ?, ?)", patient_id, doctor_id, rec_id, review) > 0;
     }
 
-    public List<ReviewDto> getReviewsOnDoctor (long doctor_id) {
+    public List<ReviewDto> getReviewsOnDoctor(long doctor_id) {
         return jdbcTemplate.query("SELECT * FROM `reviews` WHERE  `rw_doctor_id` = ? ", reviewMapper, doctor_id);
     }
 }

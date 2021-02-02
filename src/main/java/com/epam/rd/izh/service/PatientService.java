@@ -3,7 +3,10 @@ package com.epam.rd.izh.service;
 import com.epam.rd.izh.dto.AppointmentDto;
 import com.epam.rd.izh.dto.DoctorDto;
 import com.epam.rd.izh.dto.TimeTableDto;
-import com.epam.rd.izh.repository.*;
+import com.epam.rd.izh.repository.DoctorRepository;
+import com.epam.rd.izh.repository.ReviewRepository;
+import com.epam.rd.izh.repository.TimeTableRepository;
+import com.epam.rd.izh.repository.UserRepository;
 import com.epam.rd.izh.util.TimeHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -18,9 +21,6 @@ import java.util.stream.Collectors;
 
 @Service
 public class PatientService {
-
-    @Autowired
-    TextContentRepository textContentRepository;
 
     @Autowired
     DoctorRepository doctorRepository;
@@ -75,12 +75,12 @@ public class PatientService {
                 timeHolder.getDate());
     }
 
-    public void unRecordPatient (long recId, Authentication authentication) {
-        timeTableRepository.unRecordPatient(recId,userRepository.getUserByLogin(authentication.getName()).getId());
+    public void unRecordPatient(long recId, Authentication authentication) {
+        timeTableRepository.unRecordPatient(recId, userRepository.getUserByLogin(authentication.getName()).getId());
     }
 
     public boolean saveReview(long rec_id, String review) {
         TimeTableDto record = timeTableRepository.getTimeTableRecordById(rec_id);
-        return reviewRepository.saveReview(record.getPatient_id(),record.getDoctor_id(),record.getRec_id(),review);
+        return reviewRepository.saveReview(record.getPatient_id(), record.getDoctor_id(), record.getRec_id(), review);
     }
 }

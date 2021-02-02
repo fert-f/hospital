@@ -58,9 +58,6 @@ public class UserRepository {
             return null;
         }
         return users.get(0);
-//        return users.stream()
-//                .filter(value -> value.getLogin().equals(login))
-//                .findFirst().orElse(null);
     }
 
     public boolean addAuthorizedUser(@Nullable AuthorizedUser user) {
@@ -81,11 +78,6 @@ public class UserRepository {
                 registeredUser.getRole()) != 0;
     }
 
-    public boolean isUserExists(String login) {
-        Integer count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM `users` WHERE `login`=? LIMIT 1", Integer.class, login);
-        return count !=null && count > 0;
-    }
-
     public MyUser getUserByLogin(String login) {
         List<MyUser> users = jdbcTemplate.query("SELECT * FROM `users` WHERE `login` = ? LIMIT 1", userMapper, login);
         if (users.isEmpty()) {
@@ -94,7 +86,7 @@ public class UserRepository {
         return users.get(0);
     }
 
-    public MyUser getUserById (long id) {
+    public MyUser getUserById(long id) {
         List<MyUser> users = jdbcTemplate.query("SELECT * FROM `users` WHERE `user_id` = ? LIMIT 1", userMapper, id);
         if (users.isEmpty()) {
             return null;
@@ -102,15 +94,7 @@ public class UserRepository {
         return users.get(0);
     }
 
-    public List <MyUser> getUsersByRole(String role) {
-        List<MyUser> users = jdbcTemplate.query("SELECT * FROM `users` WHERE `role` = ? ", userMapper, role);
-        if (users.isEmpty()) {
-            return null;
-        }
-        return users;
-    }
-
-    public List<MyUser> getDoctorPatients (long doctorId) {
+    public List<MyUser> getDoctorPatients(long doctorId) {
         return jdbcTemplate.query("SELECT * FROM `users` WHERE user_id IN (" +
                 "SELECT `patient_id` FROM `timetable` WHERE `doctor_id` = ? AND `visit` IS NOT NULL)", userMapper, doctorId);
     }

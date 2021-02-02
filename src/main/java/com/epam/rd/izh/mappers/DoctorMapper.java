@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.time.LocalTime;
 
 @Component
 public class DoctorMapper implements RowMapper<DoctorDto> {

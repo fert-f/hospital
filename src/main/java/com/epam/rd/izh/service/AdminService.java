@@ -5,15 +5,15 @@ import com.epam.rd.izh.entity.MyUser;
 import com.epam.rd.izh.repository.*;
 import com.epam.rd.izh.util.TimeHolder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.DateFormatter;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class AdminService {
@@ -40,10 +40,6 @@ public class AdminService {
         return doctorRepository.getAllDoctors();
     }
 
-    public List<TimeTableDto> getOldRecordsOfVisits() {
-        return timeTableRepository.getRecordsOfVisits(LocalDate.of(1970, 1, 1), timeHolder.getDate());
-    }
-
     public boolean registerDoctor(RegisteredDoctorDto doctorDto) {
         if (userRepository.registerUser(doctorDto)) {
             return doctorRepository.saveDoctorDetails(userRepository.getUserByLogin(doctorDto.getLogin()).getId(),
@@ -52,69 +48,62 @@ public class AdminService {
         return false;
     }
 
-    public boolean saveDoctorDetails (DoctorDetailsDto doctorDetailsDto) {
-        return doctorRepository.saveDoctorDetails(doctorDetailsDto.getId(),doctorDetailsDto.getSpecialty(), doctorDetailsDto.getSpecification(), doctorDetailsDto.getExperience());
+    public boolean saveDoctorDetails(DoctorDetailsDto doctorDetailsDto) {
+        return doctorRepository.saveDoctorDetails(doctorDetailsDto.getId(), doctorDetailsDto.getSpecialty(), doctorDetailsDto.getSpecification(), doctorDetailsDto.getExperience());
     }
 
-    public DoctorDto getDoctorByID (long id){
+    public DoctorDto getDoctorByID(long id) {
         return doctorRepository.getDoctorById(id);
     }
 
-    public List<TimeTableDto> getDateTimeTableForDoctorToDate (long id, String date) {
-        return timeTableRepository.getTimeTableForDoctorToDay(id,LocalDate.parse(date));
+
+    public boolean isChangeDoctorWork(long id, String date, int change) {
+        return timeTableRepository.isChangeWork(id, LocalDate.parse(date), change);
     }
 
-    public boolean isChangeDoctorWork (long id, LocalDate date, int change) {
-        return timeTableRepository.isChangeWork(id,date,change);
-    }
-
-    public boolean isChangeDoctorWork (long id, String date, int change) {
-        return timeTableRepository.isChangeWork(id,LocalDate.parse(date),change);
-    }
-
-    public boolean changeTimeTableToDoctorForDay (long id, String date, List<LocalTime> change, String trigger) {
-        if (trigger != null){
+    public boolean changeTimeTableToDoctorForDay(long id, String date, List<LocalTime> change, String trigger) {
+        if (trigger != null) {
             return timeTableRepository.setDayTimeTableToDoctorForDay(id, LocalDate.parse(date), change);
-        }else {
+        } else {
             return timeTableRepository.deleteDayTimeTableToDoctorForDay(id, LocalDate.parse(date), change);
         }
     }
 
-    public List<MyUser> getDoctorPatients (long doctorId) {
+    public List<MyUser> getDoctorPatients(long doctorId) {
         return userRepository.getDoctorPatients(doctorId);
     }
 
-    public Map<ReviewDto, MyUser > getReviewsOnDoctor (long doctor_id) {
+    public Map<ReviewDto, MyUser> getReviewsOnDoctor(long doctor_id) {
         Map<ReviewDto, MyUser> result = new LinkedHashMap<>();
         List<ReviewDto> reviews = reviewRepository.getReviewsOnDoctor(doctor_id);
-        for (ReviewDto review: reviews) {
-            result.put(review,userRepository.getUserById(review.getRw_patient_id()));
+        for (ReviewDto review : reviews) {
+            result.put(review, userRepository.getUserById(review.getRw_patient_id()));
         }
         return result;
     }
 
     public List<TimeTableDto> getPatientHistoryForAdmin(long doctorId, long patientId) {
-        return timeTableRepository.getDoctorRecordsOffPatient(doctorId,patientId);
+        return timeTableRepository.getDoctorRecordsOffPatient(doctorId, patientId);
     }
 
-    public MyUser getUserById (long id) {
+    public MyUser getUserById(long id) {
         return userRepository.getUserById(id);
     }
 
-    public Map<TimeTableDto, MyUser > getDoctorDayAppointments (long doctorId, String date){
+    public Map<TimeTableDto, MyUser> getDoctorDayAppointments(long doctorId, String date) {
         Map<TimeTableDto, MyUser> result = new LinkedHashMap<>();
-        List<TimeTableDto> time = timeTableRepository.getTimeTableForDoctorToDay(doctorId,LocalDate.parse(date));
-        for (TimeTableDto timeTableDto: time) {
+        List<TimeTableDto> time = timeTableRepository.getTimeTableForDoctorToDay(doctorId, LocalDate.parse(date));
+        for (TimeTableDto timeTableDto : time) {
             result.put(timeTableDto, userRepository.getUserById(timeTableDto.getPatient_id()));
         }
-        return  result;
+        return result;
     }
 
     public List<String> getDoctorsDayOfWork(long doctorId) {
         LinkedList<String> result = new LinkedList<>();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-M-d");
         List<String> incomeList = timeTableRepository.getDoctorsDaysWorked(doctorId);
-        for (String date : incomeList){
+        for (String date : incomeList) {
             result.add(LocalDate.parse(date).format(formatter));
         }
         return result;

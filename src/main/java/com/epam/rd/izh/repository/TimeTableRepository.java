@@ -2,9 +2,7 @@ package com.epam.rd.izh.repository;
 
 import com.epam.rd.izh.dto.AppointmentDto;
 import com.epam.rd.izh.dto.TimeTableDto;
-import com.epam.rd.izh.entity.MyUser;
 import com.epam.rd.izh.mappers.AppointmentMapper;
-import com.epam.rd.izh.mappers.MyUserMapper;
 import com.epam.rd.izh.mappers.TimeTableMapper;
 import com.epam.rd.izh.util.TimeHolder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,10 +37,6 @@ public class TimeTableRepository {
         return jdbcTemplate.query("SELECT * FROM `timetable` WHERE `doctor_id` = ? AND `date_app` = ? AND `patient_id` IS NULL", timeTableMapper, id, date);
     }
 
-    public List<TimeTableDto> getTimeTableForDoctorToDayIsBusy(long id, LocalDate date) {
-        return jdbcTemplate.query("SELECT * FROM `timetable` WHERE `doctor_id` = ? AND `date_app` = ? AND `patient_id` IS NOT NULL", timeTableMapper, id, date);
-    }
-
     public boolean setDayTimeTableToDoctorForDay(long id, LocalDate date, List<LocalTime> change) {
         int i = 0;
         for (LocalTime time : change) {
@@ -63,22 +57,12 @@ public class TimeTableRepository {
         return i > 0;
     }
 
-    public TimeTableDto getRecordOfAppointment(long id, LocalDate date, LocalTime time, long patientId) {
-        List<TimeTableDto> list = jdbcTemplate.query("SELECT * FROM `timetable` WHERE `date_app` = ? AND `time_app` = ? AND `doctor_id` = ? AND `patient_id` = ? LIMIT 1", timeTableMapper, date, time, id, patientId);
-        return list.get(0);
-    }
-
     public boolean recordPatient(long doctorId, LocalDate date, LocalTime time, long patientId) {
         return jdbcTemplate.update("UPDATE `timetable` SET `patient_id` = ? WHERE `date_app` = ? AND `time_app` = ? AND `doctor_id` = ? ", patientId, date, time, doctorId) > 0;
     }
 
     public void unRecordPatient(long recId, long patientId) {
         jdbcTemplate.update("UPDATE `timetable` SET `patient_id` = IF (`patient_id` = ?, NULL, `patient_id`) WHERE rec_id = ?", patientId, recId);
-    }
-
-    public List<TimeTableDto> getRecordsOfVisits(LocalDate fDate, LocalDate sDate) {
-        jdbcTemplate.query("SELECT * FROM `timetable` WHERE `date_app` BETWEEN ? AND ?", timeTableMapper, fDate, sDate);
-        return null;
     }
 
     public boolean isChangeWork(long id, LocalDate date, int change) {
@@ -93,10 +77,6 @@ public class TimeTableRepository {
         List<TimeTableDto> tableList = jdbcTemplate.query("SELECT * FROM `timetable` WHERE `doctor_id` = ? AND `date_app` = ? AND `time_app` = ?",
                 timeTableMapper, id, date, responseTime);
         return !tableList.isEmpty();
-    }
-
-    public TimeTableDto getTimeTableRecordById(long doctorId, LocalDate date, LocalTime time) {
-        return jdbcTemplate.query("SELECT * FROM `timetable` WHERE `doctor_id` = ? AND `date_app` = ? AND `time_app` = ?", timeTableMapper, doctorId, date, time).get(0);
     }
 
     public TimeTableDto getTimeTableRecordById(long recId) {
@@ -124,10 +104,6 @@ public class TimeTableRepository {
                 " ON doctor_details.dd_user_id = z.doctor_id) AS k WHERE k.rec_id NOT IN (SELECT `rec_id` FROM `reviews`)", appointmentMapper, patientId, date.minusDays(14), date);
     }
 
-    public List<TimeTableDto> getTimeTableToDoctorOnTwoWeeks(long doctorId, LocalDate date) {
-        return jdbcTemplate.query("SELECT * FROM `timetable` WHERE `doctor_id` = ? AND `date_app` BETWEEN ? AND ?", timeTableMapper, doctorId, date.plusDays(1), date.plusDays(15));
-    }
-
     public boolean patientDidNotCome(long recId) {
         return jdbcTemplate.update("UPDATE `timetable` SET visit = 0 WHERE `rec_id` = ? ", recId) > 0;
     }
@@ -144,9 +120,6 @@ public class TimeTableRepository {
         return jdbcTemplate.query("SELECT * FROM `timetable` WHERE `doctor_id` = ? AND `patient_id` = ? AND `visit` IS NOT NULL", timeTableMapper, doctorId, patientId);
     }
 
-    public List<TimeTableDto> getDoctorRecordsOnDay(long doctorId, LocalDate date) {
-        return jdbcTemplate.query("SELECT * FROM `timetable` WHERE `doctor_id` = ? AND `date_app` = ? AND `visit` IS NOT NULL", timeTableMapper, doctorId, date);
-    }
 
     public List<String> getDoctorsDaysWorked(long doctorId) {
         return jdbcTemplate.queryForList("SELECT DISTINCT `date_app` FROM `timetable` WHERE `doctor_id` = ? AND `date_app` < ?", String.class, doctorId, timeHolder.getDate().plusDays(1));
