@@ -4,6 +4,7 @@ $(document).ready(function() {
 
 $(document).on('click', function(e) {
     if ($(e.target).closest("#dark-background").length && !$(e.target).closest("#dark-background-form-holder").length) {
+        document.forms['recordForm'].submit();
         hideAll();
     }
     e.stopPropagation();
@@ -16,7 +17,9 @@ function startRecord(id) {
         url:"/doctor/patientCome/",
         data: {recId:id},
         success: function (data) {
-             editRecord(id);
+            if (data == "true"){
+                editRecord(id);
+             }
         ;},
         error: function() {
             alert("error");
@@ -32,10 +35,7 @@ function hideAll() {
 
 function editRecord (id) {
     $("#dark-background").show();
-    document.getElementById("doctorName").innerHTML = document.getElementById("doctorName"+id).innerHTML;
-    document.getElementById("id").setAttribute('value', id);
-    document.getElementById("specialty").setAttribute('value', document.getElementById("specialty"+id).innerHTML);
-    document.getElementById("specification").innerHTML =  document.getElementById("specification"+id).innerHTML;
-    document.getElementById("experience").setAttribute('value', document.getElementById("experience"+id).innerHTML);
+    document.getElementById("rec_id").setAttribute('value', id);
+    document.getElementById("record").innerHTML =  document.getElementById("Record"+id).innerHTML;
     $("#dark-background-form-holder").show();
 }

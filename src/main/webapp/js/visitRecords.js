@@ -1,21 +1,7 @@
-function getReviewForm() {
+function getSearchMenu(){
     $.ajax({
         type: 'POST',
-        url:"/patient/reviewForm",
-        data: {recId:$("#rec_id").val()},
-        success: function (data) {
-             $('#result').html(data);
-        ;},
-        error: function() {
-            alert("error");
-        }
-    });
-}
-
-function getReviews(){
-    $.ajax({
-        type: 'POST',
-        url:"/admin/getReviews",
+        url:"/admin/getSearchMenu",
         data: {doctorId:$("#doctorId").val()},
         success: function (data) {
              $('#result').html(data);
@@ -25,3 +11,21 @@ function getReviews(){
         }
     });
 }
+
+function getPatientHistory() {
+    $.ajax({
+        type: 'POST',
+        url:"/doctor/getPatientHistory",
+        data: {patientId:$("#patientId").val()},
+        success: function (data) {
+             $('#result').html(data);
+        ;},
+        error: function() {
+            alert("error");
+        }
+    });
+}
+
+
+
+

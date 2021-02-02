@@ -23,23 +23,32 @@
         <div class = "content-warp">
             <div class = "content">
                 <div class="error">${updateError}</div>
-                <div>
+                <div class = "selectorFrame">
+
                 <sec:authorize access="hasAuthority('ADMIN')">
-                    <form:form modelAttribute="docReviewsForm">
+
                         <h3>
                             Просмотр архива отзовов
                         </h3>
                         <div>
-
+                        <form:form id = "doctorSelectForm" modelAttribute="docReviewsForm">
+                            <form:select path="doctorId" name="doctorId" id ="doctorId" onchange="getReviews()">
+                                <form:option value="0" disabled="true" selected="true" label="Выберете врача" />
+                                 <c:forEach items="${doctorsLists}" var="doctor">
+                                    <form:option value = "${doctor.id}" label="${doctor.name} ${doctor.surname}" />
+                                </c:forEach>
+                            </form:select>
+                        </form:form>
                         </div>
-                    </form:form>
+
                 </sec:authorize>
                 <sec:authorize access="hasAuthority('PATIENT')">
-                    <form:form id = "doctorSelectForm" modelAttribute="docReviewsForm">
+
                         <h3>
                             Оставить отзыв на прием
                         </h3>
                         <div>
+                        <form:form id = "doctorSelectForm" modelAttribute="docReviewsForm">
                             <div class = "info">Оставить отзыв на прием возможно в течении 14 дней</div>
                             <form:select path="rec_id" id = "rec_id" name="recId" onchange="getReviewForm()">
                                 <form:option value="0" disabled="true" selected="true" label="Выберете примем на который хотите оставить отзыв" />
@@ -47,9 +56,11 @@
                                     <form:option value = "${appointment.rec_id}" label="${appointment.date_app} ${appointment.time_app}, ${appointment.doctorName} ${appointment.doctorSurname}, ${appointment.specialty}" />
                                 </c:forEach>
                             </form:select>
+                        </form:form>
                         </div>
-                    </form:form>
+
                 </sec:authorize>
+
                 </div>
                 <div id="result"></div>
             </div>

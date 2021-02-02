@@ -2,6 +2,7 @@ package com.epam.rd.izh.controller;
 
 import com.epam.rd.izh.dto.DoctorDetailsDto;
 import com.epam.rd.izh.dto.RegisteredDoctorDto;
+import com.epam.rd.izh.dto.ReviewDto;
 import com.epam.rd.izh.dto.TimeTableDto;
 import com.epam.rd.izh.entity.FormsData;
 import com.epam.rd.izh.service.AdminService;
@@ -73,7 +74,7 @@ public class AdminController {
     private String getTimeTableForDate(@RequestParam String date, @PathVariable long doctorId, Model model) {
         model.addAttribute("doctorId", doctorId);
         model.addAttribute("dateForQuery", date);
-  //      model.addAttribute("dateTimeTableForDoctor", adminService.getDateTimeTableForDoctorToDate(doctorId, date));
+        //      model.addAttribute("dateTimeTableForDoctor", adminService.getDateTimeTableForDoctorToDate(doctorId, date));
         model.addAttribute("dayTimeTableForm", new FormsData());
         model.addAttribute("firstChange", adminService.isChangeDoctorWork(doctorId, date, 1));
         model.addAttribute("secondChange", adminService.isChangeDoctorWork(doctorId, date, 2));
@@ -82,9 +83,9 @@ public class AdminController {
 
     @PostMapping("/admin/doctorTimeWork/{doctorId}/setDate")
     private String saveTimeTableForDate(@ModelAttribute("dayTimeTableForm") FormsData dayTimeTableForm, @PathVariable long doctorId, Model model) {
-        if(adminService.changeTimeTableToDoctorForDay(doctorId, dayTimeTableForm.getDate(), TimeHolder.pm, dayTimeTableForm.getPm()) ||
-                adminService.changeTimeTableToDoctorForDay(doctorId, dayTimeTableForm.getDate(), TimeHolder.am, dayTimeTableForm.getAm())){
-            model.addAttribute("updateDoctorError",  "Пользователь небыл изменен");
+        if (adminService.changeTimeTableToDoctorForDay(doctorId, dayTimeTableForm.getDate(), TimeHolder.pm, dayTimeTableForm.getPm()) ||
+                adminService.changeTimeTableToDoctorForDay(doctorId, dayTimeTableForm.getDate(), TimeHolder.am, dayTimeTableForm.getAm())) {
+            model.addAttribute("updateDoctorError", "Пользователь небыл изменен");
         }
         return "redirect:/admin/doctorTimeWork/" + doctorId;
     }
@@ -125,7 +126,35 @@ public class AdminController {
     @GetMapping("/admin/reviews")
     public String adminReviews(Model model) {
         model.addAttribute("doctorsLists", adminService.getListOfDoctors());
-        model.addAttribute("docForm", new FormsData());
-        return "visitRecords";
+        model.addAttribute("docReviewsForm", new FormsData());
+        return "reviews";
+    }
+
+    @PostMapping("/admin/getSearchMenu")
+    public String getSearchMenu(Model model, @RequestParam long doctorId) {
+        model.addAttribute("searchForm", new FormsData());
+        model.addAttribute("patientsList", adminService.getDoctorPatients(doctorId));
+        model.addAttribute("doctor", adminService.getDoctorByID(doctorId));
+        model.addAttribute("doctorDaysWorked", adminService.getDoctorsDayOfWork(doctorId));
+        return "/modules/searchMenu";
+    }
+
+    @PostMapping("/admin/getReviews")
+    public String getReviews(Model model, @RequestParam long doctorId) {
+        model.addAttribute("reviewsList", adminService.getReviewsOnDoctor(doctorId));
+        return "/modules/reviewForm";
+    }
+
+    @PostMapping("/admin/getPatientHistory")
+    public String getPatientHistoryForAdmin(@RequestParam long doctorId, @RequestParam long patientId, Model model) {
+        model.addAttribute("patient", adminService.getUserById(patientId));
+        model.addAttribute("patientRecords", adminService.getPatientHistoryForAdmin(doctorId, patientId));
+        return "/modules/patientHistory";
+    }
+
+    @PostMapping("/admin/getDayHistory")
+    public String getDayHistory (@RequestParam long doctorId, @RequestParam String date, Model model) {
+        model.addAttribute("todayMap", adminService.getDoctorDayAppointments(doctorId,date));
+        return "/modules/oneDay";
     }
 }

@@ -110,4 +110,9 @@ public class UserRepository {
         return users;
     }
 
+    public List<MyUser> getDoctorPatients (long doctorId) {
+        return jdbcTemplate.query("SELECT * FROM `users` WHERE user_id IN (" +
+                "SELECT `patient_id` FROM `timetable` WHERE `doctor_id` = ? AND `visit` IS NOT NULL)", userMapper, doctorId);
+    }
+
 }

@@ -51,12 +51,12 @@
         </tr>
         <tr>
              <td class = "left-menu-bar">
-                <a href="#"><p>Мое расписание</p></a>
+                <a href="/doctor/timeTable"><p>Мое расписание</p></a>
              </td>
         </tr>
         <tr>
              <td class = "left-menu-bar">
-                <a href="#"><p>Просмотр архива посешений</p></a>
+                <a href="/doctor/visitRecords"><p>Просмотр архива посешений</p></a>
              </td>
         </tr>
     </sec:authorize>

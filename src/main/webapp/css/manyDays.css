@@ -4,8 +4,7 @@
 }
 
 .info-frame{
-    float: left;
-    width: 300px;
+
 }
 
 .doctor-frame hr{
@@ -105,4 +104,11 @@ a#close {
 hr{
     margin-block-start: 0em;
     margin-block-end: 0em;
+}
+
+.one-frame{
+    width: 20%;
+    float: left;
+    min-height: 684px;
+    min-width: 165px;
 }

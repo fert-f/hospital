@@ -22,5 +22,4 @@ public class TimeTableDto {
     private long patient_id;
     private String record;
     private Boolean visit;
-
 }

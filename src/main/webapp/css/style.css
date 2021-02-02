@@ -74,8 +74,8 @@ footer {
 .content{
     padding: 6px;
     min-height: calc(100% - 12px);
-    height: auto;
-    width: calc(100% - 12px);
+    height: 100%;
+    width: 100%;
 }
 
 .top_menu {
@@ -133,4 +133,8 @@ footer {
     position: fixed;
     top: 0px;
     left: 0px;
+}
+
+.selectorFrame{
+    margin-bottom: 10px;
 }

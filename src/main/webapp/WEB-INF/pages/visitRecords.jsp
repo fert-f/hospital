@@ -10,7 +10,10 @@
     <link rel="stylesheet" href="/css/left-menu.css">
     <link rel="stylesheet" href="/css/doctors.css">
     <script src="/js/jquery-3.5.1.min.js"></script>
-    <script src="/js/doctorTimeWork.js"></script>
+    <script src="/js/jquery-ui.min.js"></script>
+    <script src="/js/visitRecords.js"></script>
+
+
     <title>Doctor record archive</title>
   </head>
 
@@ -29,12 +32,22 @@
                             Просмотр архива
                         </h3>
                         <div>
-                            <form:select path="doctorId" name="doctorId" onchange="">
+                        <sec:authorize access="hasAuthority('ADMIN')">
+                            <form:select path="doctorId" name="doctorId" id ="doctorId" onchange="getSearchMenu()">
                                 <form:option value="0" disabled="true" selected="true" label="Выберете врача" />
                                  <c:forEach items="${doctorsLists}" var="doctor">
                                     <form:option value = "${doctor.id}" label="${doctor.name} ${doctor.surname}" />
                                 </c:forEach>
                             </form:select>
+                        </sec:authorize>
+                        <sec:authorize access="hasAuthority('DOCTOR')">
+                            <form:select path="patient_id" name="patient_id" id ="patientId" onchange="getPatientHistory()">
+                                <form:option value="0" disabled="true" selected="true" label="Выберете пациента" />
+                                 <c:forEach items="${patientsList}" var="patient">
+                                    <form:option value = "${patient.id}" label="${patient.name} ${patient.surname}, ${patient.birthday}" />
+                                </c:forEach>
+                            </form:select>
+                        </sec:authorize>
                         </div>
                     </form:form>
                 </div>

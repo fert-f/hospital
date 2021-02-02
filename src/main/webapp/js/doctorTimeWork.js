@@ -1,9 +1,3 @@
-function aler() {
-alert ("hellow!");
-}
-
-
-
 function getDateWorkTime (id) {
     $.ajax({
         type: 'POST',

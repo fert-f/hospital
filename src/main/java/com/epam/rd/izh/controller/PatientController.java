@@ -78,7 +78,6 @@ public class PatientController {
     public String saveReview (@ModelAttribute("reviewForm") ReviewDto review, Model model) {
         if (patientService.saveReview(review.getRec_id(),review.getReview())){
             model.addAttribute("updateError", "Сохранение отзыва не удалось");
-
         }
         return "redirect:/patient/reviews";
     }

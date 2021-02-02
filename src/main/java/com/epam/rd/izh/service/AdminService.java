@@ -1,21 +1,19 @@
 package com.epam.rd.izh.service;
 
-import com.epam.rd.izh.dto.DoctorDetailsDto;
-import com.epam.rd.izh.dto.DoctorDto;
-import com.epam.rd.izh.dto.RegisteredDoctorDto;
-import com.epam.rd.izh.dto.TimeTableDto;
-import com.epam.rd.izh.repository.DoctorRepository;
-import com.epam.rd.izh.repository.TextContentRepository;
-import com.epam.rd.izh.repository.TimeTableRepository;
-import com.epam.rd.izh.repository.UserRepository;
+import com.epam.rd.izh.dto.*;
+import com.epam.rd.izh.entity.MyUser;
+import com.epam.rd.izh.repository.*;
 import com.epam.rd.izh.util.TimeHolder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import javax.swing.text.DateFormatter;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 @Service
 public class AdminService {
@@ -31,6 +29,9 @@ public class AdminService {
 
     @Autowired
     TimeTableRepository timeTableRepository;
+
+    @Autowired
+    ReviewRepository reviewRepository;
 
     @Autowired
     TimeHolder timeHolder;
@@ -79,11 +80,43 @@ public class AdminService {
         }
     }
 
-    public List<String> getDoctorsNamesLists () {
-        List <String> doctorsNamesList = new ArrayList<>();
-        for (DoctorDto doctor : doctorRepository.getAllDoctors()) {
-            doctorsNamesList.add(doctor.getName()+" "+doctor.getSurname());
+    public List<MyUser> getDoctorPatients (long doctorId) {
+        return userRepository.getDoctorPatients(doctorId);
+    }
+
+    public Map<ReviewDto, MyUser > getReviewsOnDoctor (long doctor_id) {
+        Map<ReviewDto, MyUser> result = new LinkedHashMap<>();
+        List<ReviewDto> reviews = reviewRepository.getReviewsOnDoctor(doctor_id);
+        for (ReviewDto review: reviews) {
+            result.put(review,userRepository.getUserById(review.getRw_patient_id()));
         }
-        return doctorsNamesList;
+        return result;
+    }
+
+    public List<TimeTableDto> getPatientHistoryForAdmin(long doctorId, long patientId) {
+        return timeTableRepository.getDoctorRecordsOffPatient(doctorId,patientId);
+    }
+
+    public MyUser getUserById (long id) {
+        return userRepository.getUserById(id);
+    }
+
+    public Map<TimeTableDto, MyUser > getDoctorDayAppointments (long doctorId, String date){
+        Map<TimeTableDto, MyUser> result = new LinkedHashMap<>();
+        List<TimeTableDto> time = timeTableRepository.getTimeTableForDoctorToDay(doctorId,LocalDate.parse(date));
+        for (TimeTableDto timeTableDto: time) {
+            result.put(timeTableDto, userRepository.getUserById(timeTableDto.getPatient_id()));
+        }
+        return  result;
+    }
+
+    public List<String> getDoctorsDayOfWork(long doctorId) {
+        LinkedList<String> result = new LinkedList<>();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-M-d");
+        List<String> incomeList = timeTableRepository.getDoctorsDaysWorked(doctorId);
+        for (String date : incomeList){
+            result.add(LocalDate.parse(date).format(formatter));
+        }
+        return result;
     }
 }

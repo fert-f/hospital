@@ -27,16 +27,26 @@ public class DoctorService {
     public Map<TimeTableDto, MyUser > getDoctorDayAppointments (Authentication authentication){
         Map<TimeTableDto, MyUser> result = new LinkedHashMap<>();
         List<TimeTableDto> time = timeTableRepository.getTimeTableForDoctorToDay(userRepository.getUserByLogin(authentication.getName()).getId(),timeHolder.getDate());
-        System.out.println(time.toString());
         for (TimeTableDto timeTableDto: time) {
             result.put(timeTableDto, userRepository.getUserById(timeTableDto.getPatient_id()));
         }
-        System.out.println(result.toString());
         return  result;
     }
 
-    public Map<LocalDate,Map<MyUser, TimeTableDto>> getDoctorTimeTableOnTwoWeeks (Authentication authentication){
-        return null;
+    public Map<LocalDate,Map<TimeTableDto, MyUser>> getDoctorTimeTableOnTwoWeeks (Authentication authentication) {
+        Map<LocalDate,Map<TimeTableDto, MyUser>> result = new LinkedHashMap<>();
+        for (int i = 1; i <=14; i++) {
+            LocalDate date = timeHolder.getDate().plusDays(i);
+            List<TimeTableDto> time = timeTableRepository.getTimeTableForDoctorToDay(userRepository.getUserByLogin(authentication.getName()).getId(),date);
+            if (time.size() > 0 ) {
+                Map<TimeTableDto, MyUser> oneResult = new LinkedHashMap<>();
+                for (TimeTableDto timeTableDto : time) {
+                    oneResult.put(timeTableDto, userRepository.getUserById(timeTableDto.getPatient_id()));
+                }
+                result.put(date, oneResult);
+            }
+        }
+        return result;
     }
 
     public boolean patientDidNotCome (long recId) {
@@ -49,5 +59,17 @@ public class DoctorService {
 
     public boolean saveRecordOfAppointment(long recId, String record) {
         return timeTableRepository.saveRecordOfAppointment(recId,record);
+    }
+
+    public List<TimeTableDto> getOLdPatientRecords (Authentication authentication, long patientId) {
+        return timeTableRepository.getDoctorRecordsOffPatient(userRepository.getUserByLogin(authentication.getName()).getId(), patientId);
+    }
+
+    public List<MyUser> getDoctorPatients (Authentication authentication) {
+        return userRepository.getDoctorPatients(userRepository.getUserByLogin(authentication.getName()).getId());
+    }
+
+    public MyUser getUserById (long id) {
+        return userRepository.getUserById(id);
     }
 }
