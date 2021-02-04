@@ -19,6 +19,7 @@
             <jsp:include page="modules/left_menu.jsp" />
         </div>
         <div class = "content-warp">
+        <div class="error">${updateError}</div>
             <div class = "content">
                 <form:form action="/admin/createDoctor/proceed" method="post" modelAttribute="registrationDoctorForm">
                       <p title="Registration form">

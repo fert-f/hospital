@@ -28,11 +28,8 @@ public class IndexController {
             model.addAttribute("authorized_user_name", user.getName() + " " + user.getSurname());
         }
         model.addAttribute("main_page_content", textContentRepository.getTextContentByUserAndPage("index").getContent());
-
-
         Message greetingMessage = new Message();
         greetingMessage.setMessage(ENG_GREETING + authentication.getName());
-
         model.addAttribute("message", greetingMessage.getMessage());
         return "index";
     }

@@ -70,20 +70,18 @@ public class AuthenticationController {
      */
     @PostMapping("/registration/proceed")
     public String processRegistration(@Valid @ModelAttribute("registrationForm") RegisteredUserDto registeredUser,
-                                      BindingResult bindingResult, RedirectAttributes redirectAttributes) {
+                                      BindingResult bindingResult, RedirectAttributes redirectAttributes, Model model) {
 
         /**
          * Здесь по желанию можно добавить валидацию введенных данных на back-end слое.
          * Для этого необходимо написать реализацию Validator.
          */
         //registeredUser.validate(registeredUserDto, bindingResult);
-//
-//    if (bindingResult.hasErrors()) {
-//      //логика отображения ошибки, не является обязательной
-//      //...
-//      //...
-//      return "redirect:/registration";
-//    }
+
+        if (bindingResult.hasErrors()) {
+          model.addAttribute("updateError", "Заполните коректно все поля");
+          return "redirect:/registration";
+        }
         /**
          * Здесь происходит присвоение роли пользователю и шифрование пароля.
          * Роль может быть так же определена пользователем на этапе регистрации, либо иным способов, зависящим

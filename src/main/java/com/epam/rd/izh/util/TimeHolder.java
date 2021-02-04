@@ -14,7 +14,7 @@ import java.util.List;
 public class TimeHolder {
 
     private LocalDateTime time = LocalDateTime.now();
-    private LocalDate date = LocalDate.now();
+    private LocalDate date = LocalDate.parse("2021-02-03");
 
     public static List<LocalTime> am;
     public static List<LocalTime> pm;

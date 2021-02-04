@@ -17,7 +17,7 @@
       <p title="Registration form">
         Registration
       </p>
-
+      <div class="error">${updateError}</div>
       <div>
         <label title="Login">Login</label>
         <form:input path="login" id="check_login" title="Login" />

@@ -5,7 +5,7 @@
 <!DOCTYPE html>
 <link rel="stylesheet" href="/css/searchMenu.css">
 <link rel="stylesheet" href="/css/jquery-ui.css">
-<script src="/js/jquery-ui.min.js"></script>
+
 <script>let enabledDays = [ <c:forEach items="${doctorDaysWorked}" var="workDay"> "${workDay}", </c:forEach> ] </script>
 <script src="/js/searchMenu.js"></script>
 <div class = "ajaxContentMenu">

@@ -43,13 +43,10 @@ public class AdminController {
     @PostMapping("/admin/updateDoctor")
     public String adminUpdateDoctor(@Valid @ModelAttribute("editDoctorForm") DoctorDetailsDto registeredDoctorDetails,
                                     BindingResult bindingResult, RedirectAttributes redirectAttributes, Model model) {
-
-//    if (bindingResult.hasErrors()) {
-//      //логика отображения ошибки, не является обязательной
-//      //...
-//      //...
-//      return "redirect:/admin/createDoctor";
-//    }
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("updateDoctorError", "Что-то пошло не так");
+            return "redirect:redirect:/admin/doctors";
+        }
         if (adminService.saveDoctorDetails(registeredDoctorDetails)) {
             model.addAttribute("updateDoctorError", "Изменение пользователя неудалось");
         }
@@ -98,14 +95,11 @@ public class AdminController {
 
     @PostMapping("/admin/createDoctor/proceed")
     public String processCreateDoctor(@Valid @ModelAttribute("registrationDoctorForm") RegisteredDoctorDto registeredDoctor,
-                                      BindingResult bindingResult, RedirectAttributes redirectAttributes) {
-
-//    if (bindingResult.hasErrors()) {
-//      //логика отображения ошибки, не является обязательной
-//      //...
-//      //...
-//      return "redirect:/admin/createDoctor";
-//    }
+                                      BindingResult bindingResult, RedirectAttributes redirectAttributes, Model model) {
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("updateError", "Заполните коректно все поля");
+          return "redirect:/admin/createDoctor";
+        }
         registeredDoctor.setRole("DOCTOR");
         registeredDoctor.setPassword(passwordEncoder.encode(registeredDoctor.getPassword()));
         if (adminService.registerDoctor(registeredDoctor)) {

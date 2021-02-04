@@ -9,7 +9,7 @@
             <a href="/logout">Logout</a></nav>
         </div>
         <div class = "right-top-menu">
-            ${authorized_user_name} ${headerUser.name} ${headerUser.surname}
+            ${headerUser.name} ${headerUser.surname}
         </div>
     </div>
 </header>
