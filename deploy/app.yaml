@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: hospital
+  labels:
+    app: hospital
+spec:
+  type: ClusterIP
+  selector:
+    app: hospital
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+---
