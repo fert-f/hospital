@@ -34,6 +34,10 @@ spec:
       containers:
       - image: core.fert.name/library/hospital:${IMAGE_TAG}
         name: hospital
+        ports:
+        - name: http
+          containerPort: 80
+          protocol: TCP
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
