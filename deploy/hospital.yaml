@@ -32,14 +32,13 @@ spec:
         app: hospital
     spec:
       containers:
-      - image: core.fert.name/library/myimage:${IMAGE_TAG}
+      - image: core.fert.name/library/hospital:${IMAGE_TAG}
         name: hospital
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: hospital
-  namespace: hospital
   labels:
     app.kubernetes.io/instance: hospital
     app.kubernetes.io/name: hospital
