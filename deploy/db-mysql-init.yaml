@@ -1,0 +1,45 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: init-db
+spec:
+  template:
+    metadata:
+      name:  init-db
+      labels:
+        app: init-mysqldb
+    spec:
+      containers:
+      - image: "mysql:8.0.34"
+        name: init-db
+        command: [ "bin/sh", "-c", "sleep 1000; mysql -h "$MYSQL_HOST" -u "$MYSQL_USER" -p"$MYSQL_PASSWORD" -D"$MYSQL_DATABASE" < /tmp/hospital/brizer.sql" ]
+        volumeMounts:
+        - name: db-init
+          mountPath: /tmp/hospital
+        env:
+          - name: MYSQL_HOST
+            valueFrom:
+              configMapKeyRef:
+                name: mysql-secret
+                key: MYSQL_HOST
+          - name: MYSQL_DATABASE
+            valueFrom:
+              configMapKeyRef:
+                name: mysql-secret
+                key: MYSQL_DATABASE
+          - name: MYSQL_USER
+            valueFrom:
+              configMapKeyRef:
+                name: mysql-secret
+                key: MYSQL_USER
+          - name: MYSQL_PASSWORD
+            valueFrom:
+              configMapKeyRef:
+                name: mysql-secret
+                key: MYSQL_PASSWORD
+      volumes:
+        - name: db-init
+          configMap:
+            name: db-init
+      restartPolicy: OnFailure

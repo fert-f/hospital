@@ -5,10 +5,15 @@ metadata:
   labels:
     app: postgres
 data:
+  # PGDATABASE: brizer
+  # PGUSER: brizer
+  PGHOST: 'postgres.default.svc.cluster.local'
+  # Default superuser
+  POSTGRES_USER: brizer
+  # Default superuser password
+  POSTGRES_PASSWORD: changeme
+  # Default database
   POSTGRES_DB: brizer
-  PGUSER: brizer
-  PGPASSWORD: 'laKdK*kc1c'
-  PGHOST: 'postgres.default.cluster.local'
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -50,24 +55,26 @@ metadata:
 spec:
   storageClassName: local-path
   accessModes:
-    - ReadWriteMany
+    - ReadWriteOnce
   resources:
     requests:
       storage: 2Gi
----
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: postgres-volume
-  labels:
-    type: local
-    app: postgres
-spec:
-  storageClassName: local-path
-  capacity:
-    storage: 2Gi
-  # accessModes:
-  #   - ReadWriteMany
+  volumeMode: Filesystem      
+# ---
+# apiVersion: v1
+# kind: PersistentVolume
+# metadata:
+#   name: postgres-volume
+#   labels:
+#     type: local
+#     app: postgres
+# spec:
+#   storageClassName: local-path
+#   capacity: 
+#     storage: 2Gi
+#   accessModes:
+#     - ReadWriteOnce
+#   volumeMode: Filesystem
 ---
 apiVersion: v1
 kind: Service

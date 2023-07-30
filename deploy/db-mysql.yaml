@@ -1,0 +1,93 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-secret
+  labels:
+    app: mysql
+data:
+  # PGDATABASE: brizer
+  # MYSQL_PWD: brizer
+  MYSQL_ROOT_PASSWORD: changemeroot
+  MYSQL_HOST: 'mysql.default.svc.cluster.local'
+  # Default superuser
+  MYSQL_USER: brizer
+  # Default superuser password
+  MYSQL_PASSWORD: changeme
+  # Default database
+  MYSQL_DATABASE: brizer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:8.0.34
+          imagePullPolicy: "IfNotPresent"
+          ports:
+            - containerPort: 3306
+          envFrom:
+            - configMapRef:
+                name: mysql-secret
+          volumeMounts:
+            - mountPath: /var/lib/mysqlql/data
+              name: mysqldata
+      volumes:
+        - name: mysqldata
+          persistentVolumeClaim:
+            claimName: mysql-volume-claim
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-volume-claim
+  labels:
+    app: mysql
+spec:
+  storageClassName: local-path
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+  volumeMode: Filesystem      
+# ---
+# apiVersion: v1
+# kind: PersistentVolume
+# metadata:
+#   name: mysql-volume
+#   labels:
+#     type: local
+#     app: mysql
+# spec:
+#   storageClassName: local-path
+#   capacity: 
+#     storage: 2Gi
+#   accessModes:
+#     - ReadWriteOnce
+#   volumeMode: Filesystem
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+  labels:
+    app: mysql
+spec:
+  type: ClusterIP
+  selector:
+    app: mysql
+  ports:
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306

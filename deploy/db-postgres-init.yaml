@@ -13,10 +13,10 @@ spec:
       containers:
       - image: "postgres:12.10"
         name: init-db
-        command: [ "bin/sh", "-c", "psql -a -f /brizer.sql" ]
+        command: [ "bin/sh", "-c", "sleep 1000; psql -a -f /tmp/hospital/brizer.sql" ]
         volumeMounts:
         - name: db-init
-          mountPath: /brizer.sql
+          mountPath: /tmp/hospital
         env:
           - name: PGHOST
             valueFrom:
@@ -27,19 +27,19 @@ spec:
             valueFrom:
               configMapKeyRef:
                 name: postgres-secret
-                key: PGDATABASE
+                key: POSTGRES_DB
           - name: PGUSER
             valueFrom:
               configMapKeyRef:
                 name: postgres-secret
-                key: PGUSER
+                key: POSTGRES_USER
           - name: PGPASSWORD
             valueFrom:
               configMapKeyRef:
                 name: postgres-secret
-                key: PGPASSWORD
+                key: POSTGRES_PASSWORD
       volumes:
         - name: db-init
           configMap:
-            name: brizer.sql
+            name: db-init
       restartPolicy: OnFailure
