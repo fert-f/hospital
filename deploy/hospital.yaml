@@ -32,7 +32,7 @@ spec:
         app: hospital
     spec:
       containers:
-      - image: core.fert.name/library/hospital:${IMAGE_TAG}
+      - image: core.fert.name/library/hospital:IMAGE_TAG
         name: hospital
         ports:
         - name: http
