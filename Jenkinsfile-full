@@ -11,14 +11,12 @@ pipeline {
             runAsUser: 1000 # default UID of jenkins user in agent image
           containers:
           - name: trufflehog
-            // image: trufflesecurity/trufflehog:3.41.1
             image: core.fert.name:443/hub.docker.com/trufflesecurity/trufflehog:3.41.1
             imagePullPolicy: IfNotPresent
             command:
             - cat
             tty: true
           - name: curl
-            // image: curlimages/curl:8.1.2
             image: core.fert.name:443/hub.docker.com/curlimages/curl:8.1.2
             imagePullPolicy: IfNotPresent
             command:
@@ -58,12 +56,14 @@ pipeline {
             - cat
             tty: true
           - name: owasp-zap
-            // image: core.fert.name:443/hub.docker.com/owasp/zap2docker-stable:2.12.0
-            image: core.fert.name:443/hub.docker.com/bitnami/kubectl:1.22.16
+            image: core.fert.name:443/hub.docker.com/owasp/zap2docker-stable:2.12.0
             imagePullPolicy: IfNotPresent
             command:
             - cat
             tty: true
+            volumeMounts:
+              - name: zap-cache
+                mountPath: /zap/wrk
           - name: maven
             image: core.fert.name:443/hub.docker.com/library/maven:3.9.3
             imagePullPolicy: IfNotPresent
@@ -122,6 +122,8 @@ pipeline {
             emptyDir: {}
           - name: trivy-cache
             emptyDir: {}
+          - name: zap-cache
+            emptyDir: {}
               
 '''
     }
@@ -132,12 +134,13 @@ pipeline {
         checkout scmGit(
           branches: [[name: 'master']],
           userRemoteConfigs: [[url: 'https://github.com/fert-f/hospital.git']])
-        // git 'https://github.com/fert-f/hospital'
+        sh 'echo $(git rev-parse HEAD | cut -c 1-7) > git_sha.txt'
       }
     }
     stage('Maven build') {
       steps {
           container('maven') {
+            sh "env"
             sh "mvn --batch-mode --errors --show-version --no-transfer-progress dependency:resolve # resolves and downloads the project dependencies."
             sh "mvn --batch-mode --errors --show-version --no-transfer-progress clean package"
             sh "ls; ls -la target"
@@ -159,26 +162,27 @@ pipeline {
                 host=defectdojo.fert.name
                 svc=defectdojo-django.security.svc.cluster.local
                 echo ${DEFECTDOJO_TOKEN} | base64
+                GIT_SHA=$(cat git_sha.txt)
                 # Push report to defectdojo
                 curl -sk "http://${svc}/api/v2/reimport-scan/" -H "Host: ${host}" \
-                          --header "Authorization: Token ${DEFECTDOJO_TOKEN}" \
-                          --form 'test_title=Dockerfile' \
-                          --form 'product_type_name=Research and Development' \
-                          --form 'product_name=Application' \
-                          --form 'engagement_name=Kics' \
-                          --form 'auto_create_context=true' \
-                          --form 'do_not_reactivate=false' \
-                          --form 'minimum_severity=Info' \
-                          --form 'close_old_findings=false' \
-                          --form 'active=true' \
-                          --form 'tags=docker' \
-                          --form 'environment=Development' \
-                          --form 'verified=false' \
-                          --form 'engagement_end_date=2030-12-31' \
-                          --form 'endpoint_to_add=1' \
-                          --form 'deduplication_on_engagement=true' \
-                          --form 'scan_type=KICS Scan' \
-                          --form 'file=@kics-dockerfile.scan.json'
+                    --header "Authorization: Token ${DEFECTDOJO_TOKEN}" \
+                    --form 'test_title=Dockerfile' \
+                    --form 'product_type_name=Research and Development' \
+                    --form 'product_name=Application' \
+                    --form "engagement_name=Hospital:${GIT_SHA}" \
+                    --form 'auto_create_context=true' \
+                    --form 'do_not_reactivate=false' \
+                    --form 'minimum_severity=Info' \
+                    --form 'close_old_findings=false' \
+                    --form 'active=true' \
+                    --form 'tags=docker' \
+                    --form 'environment=Development' \
+                    --form 'verified=false' \
+                    --form 'engagement_end_date=2030-12-31' \
+                    --form 'endpoint_to_add=1' \
+                    --form 'deduplication_on_engagement=true' \
+                    --form 'scan_type=KICS Scan' \
+                    --form 'file=@kics-dockerfile.scan.json'
               '''
             }
           }
@@ -188,7 +192,7 @@ pipeline {
             container('kubectl') {
               sh '''#!/usr/bin/env sh
                 echo "MOCK MANIFEST CREATION. TODO: replace with real once"
-                GIT_SHA=$(cat .git/$(cat .git/HEAD | awk '{print $2}')| cut -c 1-7|| echo "dev")
+                GIT_SHA=$(cat git_sha.txt)
                 echo "Deploying kubernetes resources ${GIT_SHA}"
                 kubectl create deploy --dry-run=client -o yaml application --image=core.fert.name/library/hospital:${GIT_SHA} -o yaml > deployment.yaml
               '''
@@ -203,14 +207,14 @@ pipeline {
                 echo 'Pushing scan result to DefectDojo'
                 host=defectdojo.fert.name
                 svc=defectdojo-django.security.svc.cluster.local
-                echo ${DEFECTDOJO_TOKEN} | base64
+                GIT_SHA=$(cat git_sha.txt)
                 # Push report to defectdojo
                 curl -sk "http://${svc}/api/v2/reimport-scan/" -H "Host: ${host}" \
                           --header "Authorization: Token ${DEFECTDOJO_TOKEN}" \
                           --form 'test_title=Manifest' \
                           --form 'product_type_name=Research and Development' \
                           --form 'product_name=Application' \
-                          --form 'engagement_name=Kics' \
+                          --form "engagement_name=Hospital:${GIT_SHA}" \
                           --form 'auto_create_context=true' \
                           --form 'do_not_reactivate=false' \
                           --form 'minimum_severity=Info' \
@@ -244,27 +248,27 @@ pipeline {
                   echo 'Pushing scan result to DefectDojo'
                   host=defectdojo.fert.name
                   svc=defectdojo-django.security.svc.cluster.local
-                  echo ${DEFECTDOJO_TOKEN} | base64
+                  GIT_SHA=$(cat git_sha.txt)
                   # Push report to defectdojo
                   curl -sk "http://${svc}/api/v2/reimport-scan/" -H "Host: ${host}" \
-                            --header "Authorization: Token ${DEFECTDOJO_TOKEN}" \
-                            --form 'test_title=SCA' \
-                            --form 'product_type_name=Research and Development' \
-                            --form 'product_name=Application' \
-                            --form 'engagement_name=DependencyCheck' \
-                            --form 'auto_create_context=true' \
-                            --form 'do_not_reactivate=false' \
-                            --form 'minimum_severity=Info' \
-                            --form 'close_old_findings=false' \
-                            --form 'active=true' \
-                            --form 'tags=sca' \
-                            --form 'environment=Development' \
-                            --form 'verified=false' \
-                            --form 'engagement_end_date=2030-12-31' \
-                            --form 'endpoint_to_add=1' \
-                            --form 'deduplication_on_engagement=true' \
-                            --form 'scan_type=Dependency Check Scan' \
-                            --form 'file=@dependencies.scan.xml'
+                          --header "Authorization: Token ${DEFECTDOJO_TOKEN}" \
+                          --form 'test_title=SCA' \
+                          --form 'product_type_name=Research and Development' \
+                          --form 'product_name=Application' \
+                          --form "engagement_name=Hospital:${GIT_SHA}" \
+                          --form 'auto_create_context=true' \
+                          --form 'do_not_reactivate=false' \
+                          --form 'minimum_severity=Info' \
+                          --form 'close_old_findings=false' \
+                          --form 'active=true' \
+                          --form 'tags=app' \
+                          --form 'environment=Development' \
+                          --form 'verified=false' \
+                          --form 'engagement_end_date=2030-12-31' \
+                          --form 'endpoint_to_add=1' \
+                          --form 'deduplication_on_engagement=true' \
+                          --form 'scan_type=Dependency Check Scan' \
+                          --form 'file=@dependencies.scan.xml'
                 '''
             }
           }
@@ -281,20 +285,20 @@ pipeline {
                 echo 'Pushing scan result to DefectDojo'
                 host=defectdojo.fert.name
                 svc=defectdojo-django.security.svc.cluster.local
-                echo ${DEFECTDOJO_TOKEN} | base64
+                GIT_SHA=$(cat git_sha.txt)
                 # Push report to defectdojo
                 curl -sk "http://${svc}/api/v2/reimport-scan/" -H "Host: ${host}" \
                           --header "Authorization: Token ${DEFECTDOJO_TOKEN}" \
                           --form "test_title=FilesystemSecrets" \
                           --form 'product_type_name="Research and Development"' \
                           --form 'product_name=Application' \
-                          --form "engagement_name=Trufflehog" \
+                          --form "engagement_name=Hospital:${GIT_SHA}" \
                           --form 'auto_create_context=true' \
                           --form 'do_not_reactivate=false' \
                           --form 'minimum_severity=Info' \
                           --form 'close_old_findings=false' \
                           --form 'active=true' \
-                          --form 'tags=secrets' \
+                          --form 'tags=app' \
                           --form 'environment=Development' \
                           --form 'verified=false' \
                           --form 'engagement_end_date=2030-12-31' \
@@ -322,7 +326,7 @@ pipeline {
             sh '''#!/usr/bin/env sh
                  set +x
                  SONAR_HOST_URL=http://sonarqube-sonarqube.security.svc.cluster.local:9000
-                 mvn --batch-mode --errors --show-version --no-transfer-progress sonar:sonar -Dsonar.host.url=${SONAR_HOST_URL} -Dsonar.login=${SONARQUBE_TOKEN}  -Dsonar.projectKey=Application || echo "Exit status: $?"
+                 mvn --batch-mode --errors --show-version --no-transfer-progress sonar:sonar -Dsonar.host.url=${SONAR_HOST_URL} -Dsonar.token=${SONARQUBE_TOKEN}  -Dsonar.projectKey=Application || echo "Exit status: $?"
                  cat target/sonar/report-task.txt
                '''
           }
@@ -347,22 +351,23 @@ pipeline {
                   # Create product API scan configuration
                   echo "## Creating product API scan configuration";
                   curl -sk "http://${svc}/api/v2/product_api_scan_configurations/" -H "Host: ${host}" -X POST -H 'accept: application/json' -H 'Content-Type: application/json' -H "Authorization: Token ${admin_token}" --data '{
-                        "service_key_1": "Application", "service_key_2": null, "service_key_3": null, "product": 1,"tool_configuration": '"${tool_id}"'}'
+                        "service_key_1": "Application", "service_key_2": null, "service_key_3": null, "product": 1, "tool_configuration": '"${tool_id}"'}'
                 else echo "Sonarqube tools are configured"; fi
 
+                GIT_SHA=$(cat git_sha.txt)
                 # Push report to defectdojo
                 curl -sk "http://${svc}/api/v2/reimport-scan/" -H "Host: ${host}" \
                           --header "Authorization: Token ${DEFECTDOJO_TOKEN}" \
                           --form 'test_title=Sonarqube' \
                           --form 'product_type_name=Research and Development' \
                           --form 'product_name=Application' \
-                          --form 'engagement_name=SAST' \
+                          --form "engagement_name=Hospital:${GIT_SHA}" \
                           --form 'auto_create_context=true' \
                           --form 'do_not_reactivate=false' \
                           --form 'minimum_severity=Info' \
                           --form 'close_old_findings=false' \
                           --form 'active=true' \
-                          --form 'tags=docker' \
+                          --form 'tags=app' \
                           --form 'environment=Development' \
                           --form 'verified=false' \
                           --form 'engagement_end_date=2030-12-31' \
@@ -380,7 +385,7 @@ pipeline {
             sh '''#!/busybox/sh
               # echo "FROM jenkins/inbound-agent:latest" > Dockerfile
               echo "10.0.20.20 core.fert.name" >> /etc/hosts
-              GIT_SHA=$(cat .git/$(cat .git/HEAD | awk '{print $2}')| cut -c 1-7|| echo "dev")
+              GIT_SHA=$(cat git_sha.txt)
               echo "Adding tag $GIT_SHA"
               echo /kaniko/executor --force --context `pwd` --insecure --skip-tls-verify --destination=core.fert.name/library/hospital:latest --destination=core.fert.name/library/hospital:${GIT_SHA}
               /kaniko/executor --force --context `pwd` --insecure --skip-tls-verify --destination=core.fert.name/library/hospital:latest --destination=core.fert.name/library/hospital:${GIT_SHA}
@@ -394,7 +399,7 @@ pipeline {
           container('kubectl') {
             sh '''#!/usr/bin/env bash
               set -x
-              export GIT_SHA=$(cat .git/$(cat .git/HEAD | awk '{print $2}')| cut -c 1-7|| echo "dev")
+              GIT_SHA=$(cat git_sha.txt)
               export namespace=default
               echo "Deploying kubernetes resources ${GIT_SHA}"
               kubectl create configmap db-init -n ${namespace} --from-file=./src/main/resources/brizer.sql --dry-run=client -o yaml | kubectl apply -f -
@@ -412,22 +417,24 @@ pipeline {
           sh 'trivy image --help' 
           sh '''#!/usr/bin/env sh
             trivy_url=http://trivy.security.svc.cluster.local:9090
-            GIT_SHA=$(cat .git/$(cat .git/HEAD | awk '{print $2}')| cut -c 1-7|| echo "dev")
+            GIT_SHA=$(cat git_sha.txt)
             trivy image --insecure  --server ${trivy_url} core.fert.name/library/hospital:${GIT_SHA} || sleep 1000
             trivy image --insecure  --server ${trivy_url} core.fert.name/library/hospital:${GIT_SHA} --format json > trivy.scan.json
           '''
         }
+        archiveArtifacts(artifacts: 'trivy.scan.json', followSymlinks: false)
         container('curl') {
           sh '''#!/usr/bin/env sh
             host=defectdojo.fert.name
             svc=defectdojo-django.security.svc.cluster.local
+            GIT_SHA=$(cat git_sha.txt)
             echo 'Pushing scan result to DefectDojo'
             curl -sk "http://${svc}/api/v2/reimport-scan/" -H "Host: ${host}" \
               --header "Authorization: Token ${DEFECTDOJO_TOKEN}" \
               --form 'test_title=Trivy' \
               --form 'product_type_name=Research and Development' \
               --form 'product_name=Application' \
-              --form 'engagement_name=SAST' \
+              --form "engagement_name=Hospital:${GIT_SHA}" \
               --form 'auto_create_context=true' \
               --form 'do_not_reactivate=false' \
               --form 'minimum_severity=Info' \
@@ -450,32 +457,39 @@ pipeline {
         stage('DAST') {
           steps {
             container('owasp-zap') {
-              sh "echo 'Scanning DAST'; touch zap.scan.json"
+              sh '''#!/usr/bin/env sh
+                echo 'Scanning DAST'
+                hospital_url=http://hospital.default.svc.cluster.local
+                zap-baseline.py -t ${hospital_url} -x zap.scan.xml
+                mv /zap/wrk/zap.scan.xml .
+              '''
             }
+            archiveArtifacts(artifacts: 'zap.scan.xml', followSymlinks: false)
             container('curl') {
               sh '''#!/usr/bin/env sh
                 host=defectdojo.fert.name
                 svc=defectdojo-django.security.svc.cluster.local
+                GIT_SHA=$(cat git_sha.txt)
                 echo 'Pushing scan result to DefectDojo'
                 curl -sk "http://${svc}/api/v2/reimport-scan/" -H "Host: ${host}" \
                   --header "Authorization: Token ${DEFECTDOJO_TOKEN}" \
                   --form 'test_title=ZAP' \
                   --form 'product_type_name=Research and Development' \
                   --form 'product_name=Application' \
-                  --form 'engagement_name=DAST' \
+                  --form "engagement_name=Hospital:${GIT_SHA}" \
                   --form 'auto_create_context=true' \
                   --form 'do_not_reactivate=false' \
                   --form 'minimum_severity=Info' \
                   --form 'close_old_findings=false' \
                   --form 'active=true' \
-                  --form 'tags=runtime' \
+                  --form 'tags=app' \
                   --form 'environment=Development' \
                   --form 'verified=false' \
                   --form 'engagement_end_date=2030-12-31' \
                   --form 'endpoint_to_add=1' \
                   --form 'deduplication_on_engagement=true' \
                   --form 'scan_type=ZAP Scan' \
-                  --form 'file=@zap.scan.json'
+                  --form 'file=@zap.scan.xml'
               '''
             }
           }

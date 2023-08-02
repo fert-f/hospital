@@ -1,0 +1,63 @@
+pipeline {
+  agent {
+    kubernetes {
+      //cloud 'kubernetes'
+      slaveConnectTimeout 900
+      yaml '''
+        kind: Pod
+        spec:
+          serviceAccountName: jenkins
+          securityContext:
+            runAsUser: 1000 # default UID of jenkins user in agent image
+          containers:
+          - name: curl
+            image: core.fert.name:443/hub.docker.com/curlimages/curl:8.1.2
+            imagePullPolicy: IfNotPresent
+            command:
+            - cat
+            tty: true
+            env:
+              - name: DEFECTDOJO_TOKEN
+                valueFrom:
+                  secretKeyRef:
+                    name: defectdojo-token
+                    key: token
+              - name: SONARQUBE_TOKEN
+                valueFrom:
+                  secretKeyRef:
+                    name: sonarqube-token
+                    key: token
+          - name: kubectl
+            image: core.fert.name:443/hub.docker.com/bitnami/kubectl:1.22.16
+            imagePullPolicy: IfNotPresent
+            command:
+            - cat
+            tty: true
+'''
+    }
+  }
+  stages {
+    stage('GIT'){
+      steps {
+        checkout scmGit(
+          branches: [[name: 'master']],
+          userRemoteConfigs: [[url: 'https://github.com/fert-f/hospital.git']])
+        sh 'echo $(git rev-parse HEAD | cut -c 1-7) > git_sha.txt'
+      }
+    }
+    stage('Kubernetes deploy') {
+      steps {
+          container('kubectl') {
+            sh '''#!/usr/bin/env bash
+              set -x
+              GIT_SHA=$(cat git_sha.txt)
+              export namespace=default
+              kubectl create configmap db-init -n ${namespace} --from-file=./src/main/resources/brizer.sql --dry-run=client -o yaml | kubectl apply -f -
+              kubectl apply -n ${namespace} -f deploy/db-mysql.yaml
+              kubectl apply -n ${namespace} -f deploy/db-mysql-init.yaml
+            '''
+          }
+      }
+    }
+  }
+}
