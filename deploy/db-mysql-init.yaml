@@ -13,8 +13,7 @@ spec:
       containers:
       - image: "mysql:8.0.34"
         name: init-db
-        command: [ "bin/sh", "-c" ]
-        args: ['mysql -h "$MYSQL_HOST" -u "$MYSQL_USER" -p"$MYSQL_PASSWORD" -D"$MYSQL_DATABASE" < /tmp/hospital/brizer.sql']
+        command: [ "bin/sh", "-c", "mysql -h "$MYSQL_HOST" -u "$MYSQL_USER" -p"$MYSQL_PASSWORD" -D"$MYSQL_DATABASE" < /tmp/hospital/brizer.sql" ]
         volumeMounts:
         - name: db-init
           mountPath: /tmp/hospital
