@@ -3,6 +3,7 @@ pipeline {
     kubernetes {
       //cloud 'kubernetes'
       slaveConnectTimeout 900
+      retries 2
       yaml '''
         kind: Pod
         spec:
