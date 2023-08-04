@@ -1,0 +1,143 @@
+pipeline {
+  agent {
+    kubernetes {
+      //cloud 'kubernetes'
+      slaveConnectTimeout 900
+      retries 2
+      yaml '''
+        kind: Pod
+        spec:
+          serviceAccountName: jenkins
+          securityContext:
+            runAsUser: 1000 # default UID of jenkins user in agent image
+          containers:
+          - name: curl
+            image: core.fert.name:443/hub.docker.com/curlimages/curl:8.1.2
+            imagePullPolicy: IfNotPresent
+            command:
+            - cat
+            tty: true
+            env:
+              - name: DEFECTDOJO_TOKEN
+                valueFrom:
+                  secretKeyRef:
+                    name: defectdojo-token
+                    key: token
+              - name: SONARQUBE_TOKEN
+                valueFrom:
+                  secretKeyRef:
+                    name: sonarqube-token
+                    key: token
+          - name: kubectl
+            image: core.fert.name:443/hub.docker.com/bitnami/kubectl:1.22.16
+            imagePullPolicy: IfNotPresent
+            command:
+            - cat
+            tty: true
+          - name: maven
+            image: core.fert.name:443/hub.docker.com/library/maven:3.9.3
+            imagePullPolicy: IfNotPresent
+            command:
+            - cat
+            tty: true
+            env:
+              - name: SONARQUBE_TOKEN
+                valueFrom:
+                  secretKeyRef:
+                    name: sonarqube-token
+                    key: token
+            volumeMounts:
+              - name: jenkins-maven
+                mountPath: /.m2/repository
+              - name: sonar-cache
+                mountPath: /.sonar
+          - name: kaniko
+            image: gcr.io/kaniko-project/executor:v1.6.0-debug
+            imagePullPolicy: IfNotPresent
+            securityContext:
+              runAsUser: 0
+              #fsGroup: 0
+            command:
+            - sleep
+            args:
+            - 99d
+            volumeMounts:
+              - name: jenkins-docker-cfg
+                mountPath: /kaniko/.docker
+          volumes:
+          - name: jenkins-docker-cfg
+            projected:
+              sources:
+              - secret:
+                  name: docker-credentials
+                  items:
+                    - key: .dockerconfigjson
+                      path: config.json
+          - name: jenkins-dependency-check
+            persistentVolumeClaim:
+              claimName: jenkins-dependency-check
+          - name: jenkins-maven
+            persistentVolumeClaim:
+              claimName: jenkins-maven
+          - name: sonar-cache
+            emptyDir: {}
+          - name: trivy-cache
+            emptyDir: {}
+          - name: zap-cache
+            emptyDir: {}
+              
+'''
+    }
+  }
+  stages {
+    stage('GIT'){
+      steps {
+        checkout scmGit(
+          branches: [[name: 'master']],
+          userRemoteConfigs: [[url: 'https://github.com/fert-f/hospital.git']])
+        sh 'echo $(git rev-parse HEAD | cut -c 1-7) > git_sha.txt'
+      }
+    }
+    stage('Maven build') {
+      steps {
+          container('maven') {
+            sh "env"
+            sh "mvn --batch-mode --errors --show-version --no-transfer-progress dependency:resolve # resolves and downloads the project dependencies."
+            sh "mvn --batch-mode --errors --show-version --no-transfer-progress clean package"
+            sh "ls; ls -la target"
+          }
+      }
+    }
+    stage('Docker push') {
+      steps {
+          container('kaniko') {
+            sh '''#!/busybox/sh
+              # echo "FROM jenkins/inbound-agent:latest" > Dockerfile
+              echo "10.0.20.20 core.fert.name" >> /etc/hosts
+              GIT_SHA=$(cat git_sha.txt)
+              echo "Adding tag $GIT_SHA"
+              echo /kaniko/executor --force --context `pwd` --insecure --skip-tls-verify --destination=core.fert.name/library/hospital:latest --destination=core.fert.name/library/hospital:${GIT_SHA}
+              /kaniko/executor --force --context `pwd` --insecure --skip-tls-verify --destination=core.fert.name/library/hospital:latest --destination=core.fert.name/library/hospital:${GIT_SHA}
+              touch COMPLETED
+            '''
+          }
+      }
+    }
+    stage('Kubernetes deploy') {
+      steps {
+          container('kubectl') {
+            sh '''#!/usr/bin/env bash
+              set -x
+              GIT_SHA=$(cat git_sha.txt)
+              export namespace=default
+              echo "Deploying kubernetes resources ${GIT_SHA}"
+              kubectl create configmap db-init -n ${namespace} --from-file=./src/main/resources/brizer.sql --dry-run=client -o yaml | kubectl apply -f -
+              # Update image tag in file
+              sed "s/IMAGE_TAG/${GIT_SHA}/" deploy/hospital.yaml
+              sed "s/IMAGE_TAG/${GIT_SHA}/" deploy/hospital.yaml | kubectl apply -n ${namespace} -f -
+            '''
+          }
+      }
+    }
+  }
+}

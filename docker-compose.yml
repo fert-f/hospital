@@ -1,0 +1,19 @@
+version: '3'
+services:
+  mysql:
+    image: mysql:8
+    container_name: mysql-container
+    environment:
+      MYSQL_ROOT_PASSWORD: changeme
+      MYSQL_DATABASE: brizer
+      MYSQL_USER: brizer
+      MYSQL_PASSWORD: brizer
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+ 
+
+volumes:
+  mysql-data:
