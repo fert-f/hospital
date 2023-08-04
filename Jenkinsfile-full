@@ -419,6 +419,7 @@ pipeline {
           sh '''#!/usr/bin/env sh
             trivy_url=http://trivy.security.svc.cluster.local:9090
             GIT_SHA=$(cat git_sha.txt)
+            TRIVY_TIMEOUT_SEC=60s
             trivy image --insecure  --server ${trivy_url} core.fert.name/library/hospital:${GIT_SHA}
             trivy image --insecure  --server ${trivy_url} core.fert.name/library/hospital:${GIT_SHA} --format json > trivy.scan.json
           '''
