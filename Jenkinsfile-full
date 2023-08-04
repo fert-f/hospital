@@ -356,6 +356,8 @@ pipeline {
                 else echo "Sonarqube tools are configured"; fi
 
                 GIT_SHA=$(cat git_sha.txt)
+                # Need to wait a few seconds for sonar report to be available (or defectdojo config update)
+                sleep 10
                 # Push report to defectdojo
                 curl -sk "http://${svc}/api/v2/reimport-scan/" -H "Host: ${host}" \
                           --header "Authorization: Token ${DEFECTDOJO_TOKEN}" \
