@@ -1,8 +1,11 @@
-FROM core.fert.name/hub.docker.com/library/openjdk:8
+# Use an official Tomcat image as the base image
+FROM tomcat:9.0
 
-WORKDIR /app
+# Copy the WAR file into the Tomcat webapps directory
+COPY target/final-project-template-0.0.1-SNAPSHOT.war /usr/local/tomcat/webapps/hospital.war
 
-COPY target/final-project-template-0.0.1-SNAPSHOT.war hospital.war
-# COPY src/main/resources/webapp .
+# Expose the default Tomcat port
+EXPOSE 8080
 
-CMD ["java","-jar","/app/hospital.war"]
+# Start Tomcat
+CMD ["catalina.sh", "run"]
