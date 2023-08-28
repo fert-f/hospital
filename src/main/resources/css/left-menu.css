@@ -1,0 +1,42 @@
+.left-menu-warp{
+    float: left;
+    height: 100%;
+    width: 20%;
+    min-height: calc(100% - 84px);
+    display: block;
+    background-color: #C0C0C0;
+}
+
+.left-menu-table{
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.left-menu-bar{
+    width: 100%;
+    height: 40px;
+    border-bottom: 1px solid black;
+    padding: 0;
+}
+
+.left-menu-bar a{
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+    vertical-align: middle;
+    padding: 0;
+    text-align: center;
+    text-decoration: none;
+    color: black;
+
+}
+.left-menu-bar a:hover{
+    text-decoration: underline;
+    color: #0000FF;
+}
+
+.left-menu-bar a p{
+    margin-block-start: 0em;
+    margin-block-end: 0em;
+    margin-top: 11px;
+}

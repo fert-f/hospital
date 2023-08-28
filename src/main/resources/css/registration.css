@@ -1,0 +1,18 @@
+#registrationButton{
+
+}
+
+#passMatchError{
+color:red;
+display: none;
+}
+
+#loginError{
+color:red;
+display: none;
+}
+
+#loginOk{
+color:green;
+display: none;
+}

@@ -1,0 +1,16 @@
+.time-frame{
+    float: left;
+    height: 35px;
+    width: 80px;
+    margin-left: 10px;
+    margin-bottom: 10px;
+    display: inline-block;
+    vertical-align: middle;
+    text-align: center;
+    background-color: #008000;
+    border-radius: 5px;
+}
+
+.timeForm{
+    margin-top: 8px;
+}

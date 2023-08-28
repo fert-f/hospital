@@ -1,0 +1,97 @@
+.doctor-frame{
+    width: 100%;
+}
+
+.doctor-frame hr{
+    clear: both;
+}
+
+.doctor-name{
+    width: 100%;
+}
+
+.doctor-spec{
+    width: 100%;
+}
+
+.doctor-spec p{
+    font-size: 0.8em;
+    margin-block-end: 0em;
+    margin-bottom: 2px;
+    color: #696969;
+}
+
+.doctor-info{
+    width: 100%;
+}
+
+.doctor-info p{
+    font-size: 0.9em;
+    margin-block-end: 0em;
+    margin-bottom: 3px;
+    color: #696969;
+}
+
+.doctor-act{
+    width: 100%;
+}
+
+.doctor-button{
+    float: left;
+    height: 38px;
+    width: 130px;
+    margin-bottom: 2px;
+    margin-right: 8px;
+}
+
+.doctor-button a{
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+    vertical-align: middle;
+    padding: 0;
+    text-align: center;
+    text-decoration: none;
+    align :center;
+    color: black;
+    background-color: #C0C0C0;
+    border-radius: 10px;
+}
+
+.doctor-button a:hover{
+    text-decoration: underline;
+    color: #0000FF;
+}
+
+.doctor-button a p{
+    height: 38px;
+    width: 130px;
+    display: table-cell;
+    vertical-align: middle;
+    margin: 0;
+    text-align: center;
+    font-size: 0.9em;
+}
+
+a#close {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+#dark-background-form-holder{
+    background-color: rgb(220, 220, 220);
+    min-height: 300px;
+    width: 500px;
+    padding: 20px;
+    margin-inline: auto;
+    margin-top: 13%;
+}
+
+.error{
+    color:red;
+}
+
+.ajaxContent{
+    padding: 5px;
+}

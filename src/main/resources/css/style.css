@@ -1,0 +1,140 @@
+*{
+    box-sizing: border-box;
+}
+
+html{
+}
+
+body {
+    height: 100vh;
+    width: 100%;
+    margin: 0px;
+    background-color: #DCDCDC;
+
+}
+
+div{
+
+}
+
+h3{
+    margin-block-start: 0em;
+    margin-block-end: 0em;
+    margin-top: 4px;
+    margin-bottom: 10px;
+}
+
+h4{
+    margin-block-start: 0em;
+    margin-block-end: 0em;
+    margin-top: 2px;
+    margin-bottom: 5px;
+}
+
+hr {
+    clear: both;
+}
+
+p{
+    margin-block-start: 0em;
+   /* margin-block-end: 0em; */
+}
+
+header {
+    padding: 6px;
+    width:  100%;
+    height: 30px;
+    background-color: #D3D3D3;
+}
+
+footer {
+    padding: 6px;
+    width: 100%;
+    height: 30px;
+    background-color: #D3D3D3;
+    clear: both;
+    position: relative;
+    left: 0px;
+    bottom: 0px;
+}
+
+.warp {
+    min-height: calc(100% - 60px);
+    width: 100%;
+    margin-bottom: 0px;
+}
+
+.content-warp{
+    float: left;
+    min-height: 100%;
+    height: 100%;
+    width: 80%;
+}
+
+.content{
+    padding: 6px;
+    min-height: calc(100% - 12px);
+    height: 100%;
+    width: 100%;
+}
+
+.top_menu {
+    width:100%;
+}
+
+.right-top-menu {
+     display: table-cell; vertical-align: middle;
+     height: 100%;
+     float: right;
+     white-space: nowrap;
+     vertical-align: middle;
+     padding-left: 7px;
+     padding-right: 7px;
+}
+
+.right-top-menu a{
+     height: 100%;
+     float: right;
+     white-space: nowrap;
+     vertical-align: middle;
+}
+.right-top-menu p{
+     margin-block-start: 0;
+     margin-block-end: 0;
+     vertical-align: middle;
+}
+
+
+
+.left-top-menu{
+     height: 100%;
+     float: left;
+     white-space: nowrap;
+     vertical-align: middle;
+}
+
+.left{
+ float:left;
+}
+
+.clear{
+ clear: both;
+}
+
+.hide{
+    display: none;
+}
+
+#dark-background {
+    width: 100%;
+    min-height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+    position: fixed;
+    top: 0px;
+    left: 0px;
+}
+
+.selectorFrame{
+    margin-bottom: 10px;
+}
