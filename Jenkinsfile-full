@@ -133,7 +133,7 @@ pipeline {
     stage('GIT'){
       steps {
         checkout scmGit(
-          branches: [[name: 'master']],
+          branches: [[name: 'shakhzod_sonar']],
           userRemoteConfigs: [[url: 'https://github.com/fert-f/hospital.git']])
         sh 'echo $(git rev-parse HEAD | cut -c 1-7) > git_sha.txt'
       }
