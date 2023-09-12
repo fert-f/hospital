@@ -347,7 +347,7 @@ pipeline {
                   # Create tools config
                   echo "## Creating tools config";
 
-                  tool_type=$(curl -sk "http://${svc}/api/v2/tool_types/" -H "Host: ${host}" -X GET -H 'accept: application/json' -H 'Content-Type: application/json' -H "Authorization: Token ${admin_token}" --data '{"name": "SonarQube"}' | grep -o '"id":[^,]*' |  cut -d':' -f2)
+                  tool_type=$(curl -sk "http://${svc}/api/v2/tool_types/?name=SonarQube" -H "Host: ${host}" -X GET -H 'accept: application/json' -H 'Content-Type: application/json' -H "Authorization: Token ${admin_token}" | grep -o '"id":[^,]*' |  cut -d':' -f2)
 
                   tool_id=$(curl -sk "http://${svc}/api/v2/tool_configurations/" -H "Host: ${host}" -X POST -H 'accept: application/json' -H 'Content-Type: application/json' -H "Authorization: Token ${admin_token}" --data '{
                     "name": "Sonarqube", "description": "Sonarqube integration","url": "'"${sonar_url}"'", "authentication_type": "API","extras": "BUG,VULNERABILITY,CODE_SMELL", "username": null, "auth_title": null, "tool_type": ${tool_type},"api_key": "'"${SONARQUBE_TOKEN}"'"
