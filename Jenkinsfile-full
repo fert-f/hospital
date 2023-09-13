@@ -354,8 +354,8 @@ pipeline {
                   }' | grep -o '"id":[^,]*' |  cut -d':' -f2)
                   # Create product API scan configuration
                   echo "## Creating product API scan configuration";
-                  curl -sk "http://${svc}/api/v2/product_api_scan_configurations/" -H "Host: ${host}" -X POST -H 'accept: application/json' -H 'Content-Type: application/json' -H "Authorization: Token ${admin_token}" --data '{
-                        "service_key_1": "Application", "service_key_2": null, "service_key_3": null, "product": 1, "tool_configuration": '"${tool_id}"'}'
+                  api_scan_configuration_id=$(curl -sk "http://${svc}/api/v2/product_api_scan_configurations/" -H "Host: ${host}" -X POST -H 'accept: application/json' -H 'Content-Type: application/json' -H "Authorization: Token ${admin_token}" --data '{
+                        "service_key_1": "Application", "service_key_2": null, "service_key_3": null, "product": 1, "tool_configuration": '"${tool_id}"'}' | grep -o '"id":[^,]*' |  cut -d':' -f2)
                 else echo "Sonarqube tools are configured"; fi
 
                 GIT_SHA=$(cat git_sha.txt)
@@ -380,7 +380,7 @@ pipeline {
                           --form 'endpoint_to_add=1' \
                           --form 'deduplication_on_engagement=true' \
                           --form 'scan_type=SonarQube API Import' \
-                          --form 'api_scan_configuration=1'
+                          --form "api_scan_configuration=${api_scan_configuration_id}"
                '''
           }
       }
