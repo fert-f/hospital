@@ -346,18 +346,21 @@ pipeline {
                 then
                   # Create tools config
                   echo "## Creating tools config";
+
+                  tool_type=$(curl -sk "http://${svc}/api/v2/tool_types/?name=SonarQube" -H "Host: ${host}" -X GET -H 'accept: application/json' -H 'Content-Type: application/json' -H "Authorization: Token ${admin_token}" | grep -o '"id":[^,]*' |  cut -d':' -f2)
                   tool_id=$(curl -sk "http://${svc}/api/v2/tool_configurations/" -H "Host: ${host}" -X POST -H 'accept: application/json' -H 'Content-Type: application/json' -H "Authorization: Token ${admin_token}" --data '{
-                    "name": "Sonarqube", "description": "Sonarqube integration","url": "'"${sonar_url}"'", "authentication_type": "API","extras": "BUG,VULNERABILITY,CODE_SMELL", "username": null, "auth_title": null, "tool_type": 6,"api_key": "'"${SONARQUBE_TOKEN}"'"
+                    "name": "Sonarqube", "description": "Sonarqube integration","url": "'"${sonar_url}"'", "authentication_type": "API","extras": "BUG,VULNERABILITY,CODE_SMELL", "username": null, "auth_title": null, "tool_type": '"${tool_type}"',"api_key": "'"${SONARQUBE_TOKEN}"'"
                   }' | grep -o '"id":[^,]*' |  cut -d':' -f2)
+
                   # Create product API scan configuration
                   echo "## Creating product API scan configuration";
-                  curl -sk "http://${svc}/api/v2/product_api_scan_configurations/" -H "Host: ${host}" -X POST -H 'accept: application/json' -H 'Content-Type: application/json' -H "Authorization: Token ${admin_token}" --data '{
-                        "service_key_1": "Application", "service_key_2": null, "service_key_3": null, "product": 1, "tool_configuration": '"${tool_id}"'}'
+                  api_scan_configuration_id=$(curl -sk "http://${svc}/api/v2/product_api_scan_configurations/" -H "Host: ${host}" -X POST -H 'accept: application/json' -H 'Content-Type: application/json' -H "Authorization: Token ${admin_token}" --data '{
+                        "service_key_1": "Application", "service_key_2": null, "service_key_3": null, "product": 1, "tool_configuration": '"${tool_id}"'}' | grep -o '"id":[^,]*' |  cut -d':' -f2)
                 else echo "Sonarqube tools are configured"; fi
 
                 GIT_SHA=$(cat git_sha.txt)
                 # Need to wait a few seconds for sonar report to be available (or defectdojo config update)
-                sleep 10
+                sleep 15
                 # Push report to defectdojo
                 curl -sk "http://${svc}/api/v2/reimport-scan/" -H "Host: ${host}" \
                           --header "Authorization: Token ${DEFECTDOJO_TOKEN}" \
@@ -377,7 +380,7 @@ pipeline {
                           --form 'endpoint_to_add=1' \
                           --form 'deduplication_on_engagement=true' \
                           --form 'scan_type=SonarQube API Import' \
-                          --form 'api_scan_configuration=1'
+                          --form "api_scan_configuration=${api_scan_configuration_id}"
                '''
           }
       }
